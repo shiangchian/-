@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目前資料庫中，星巴克產品的列表</title>
+    <style>
+        body {
+            font-family: "Times New Roman", "微軟正黑體", serif;
+            display: flex;
+            justify-content: center;
+            padding: 40px 10px;
+            background-color: white;
+            color: black;
+        }
+
+        /* 綠色外框容器 */
+        .outer-border {
+            border: 2px solid #006241;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 1100px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        /* 表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            border: 1px solid red; /* 紅色表格細線 */
+            padding: 12px 5px;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        .product-img {
+            width: 65px;
+            height: 65px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .footer-text {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="outer-border">
+        <h3>目前資料庫中，星巴克 Starbucks 的所有產品列表</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>產品編碼</th>
+                    <th>產品名稱</th>
+                    <th>售價</th>
+                    <th>產品描述</th>
+                    <th>產品圖示</th>
+                    <th>現有庫存</th>
+                    <th>最後異動時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>tea01</td><td>水之森玄米抹茶</td><td>NT$ 65</td><td>嚴選靜岡抹茶搭配焙煎玄米，茶湯翠綠，帶有濃郁的米香與抹茶回甘。</td><td><img src="image/drink1.jpg" class="product-img"></td><td>120</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>tea02</td><td>英倫伯爵紅茶</td><td>NT$ 55</td><td>特選錫蘭紅茶為基底，佐以佛手柑香氣，茶感醇厚，散發迷人優雅的英倫風情。</td><td><img src="image/drink2.jpg" class="product-img"></td><td>115</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>tea03</td><td>珍珠鮮奶</td><td>NT$ 75</td><td>Q彈手作珍珠搭配綠光牧場直送鮮乳，濃郁奶香與黑糖香氣完美融合。</td><td><img src="image/drink3.jpg" class="product-img"></td><td>108</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>tea04</td><td>手炒黑糖鮮奶</td><td>NT$ 80</td><td>職人每日手工慢炒黑糖，淋上醇厚鮮奶，甜而不膩，帶有獨特焦糖香。</td><td><img src="image/drink4.jpg" class="product-img"></td><td>95</td><td>2026-04-29<br>20:30:00</td></tr>
+                
+                <tr><td>cake01</td><td>草莓鮮奶油蛋糕</td><td>NT$ 120</td><td>綿密海綿蛋糕搭配新鮮草莓與特調鮮奶油，甜而不膩的夢幻滋味。</td><td><img src="image/cake1.jpg" class="product-img"></td><td>50</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>cake02</td><td>芒果夏洛特</td><td>NT$ 130</td><td>外圍酥脆手指餅乾，包裹著香濃芒果慕斯與新鮮芒果果肉，夏日限定。</td><td><img src="image/cake2.JPG" class="product-img"></td><td>45</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>cake03</td><td>經典黑森林</td><td>NT$ 110</td><td>濃郁巧克力蛋糕體加上酒漬櫻桃，鋪滿巧克力碎片，經典德式風味。</td><td><img src="image/cake3.jpg" class="product-img"></td><td>60</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>cake04</td><td>法式檸檬塔</td><td>NT$ 100</td><td>酥脆塔皮搭配酸甜平衡的法式檸檬奶油餡，清新解膩的好選擇。</td><td><img src="image/cake4.jpg" class="product-img"></td><td>55</td><td>2026-04-29<br>20:30:00</td></tr>
+
+                <tr><td>bread01</td><td>法式經典長棍</td><td>NT$ 65</td><td>外皮酥脆內裡充滿麥香，適合單吃或搭配濃湯的經典法國麵包。</td><td><img src="image/bread1.JPG" class="product-img"></td><td>80</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>bread02</td><td>綜合雜糧麵包</td><td>NT$ 80</td><td>富含多種穀物與堅果，口感紮實有嚼勁，健康滿分的美味選擇。</td><td><img src="image/bread2.JPG" class="product-img"></td><td>70</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>bread03</td><td>奶油海鹽羅宋</td><td>NT$ 70</td><td>濃郁奶油香氣與微鹹海鹽的完美結合，層層分明的酥脆口感。</td><td><img src="image/bread3.JPG" class="product-img"></td><td>90</td><td>2026-04-29<br>20:30:00</td></tr>
+                <tr><td>bread04</td><td>香蒜帕瑪森</td><td>NT$ 75</td><td>塗滿特製香蒜奶油與帕瑪森起司，烤至金黃酥脆，香氣四溢。</td><td><img src="image/bread4.jpg" class="product-img"></td><td>85</td><td>2026-04-29<br>20:30:00</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer-text">目前共有 12 種 星巴克產品</div>
+    </div>
+
+</body>
+</html>
