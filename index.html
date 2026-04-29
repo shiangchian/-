@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目前資料庫中，星巴克產品的列表</title>
+    <title>目前資料庫中，Nike 產品的列表</title>
     <style>
         body {
             font-family: "Times New Roman", "微軟正黑體", serif;
@@ -53,7 +53,7 @@
         .product-img {
             width: 65px;
             height: 65px;
-            object-fit: cover;
+            object-fit: contain;
             border: 1px solid #ddd;
         }
 
@@ -67,7 +67,7 @@
 <body>
 
     <div class="outer-border">
-        <h3>目前資料庫中，星巴克 Starbucks 的所有產品列表</h3>
+        <h3>目前資料庫中，NIKE TECH 的所有產品列表</h3>
         
         <table>
             <thead>
@@ -82,24 +82,27 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td>tea01</td><td>水之森玄米抹茶</td><td>NT$ 65</td><td>嚴選靜岡抹茶搭配焙煎玄米，茶湯翠綠，帶有濃郁的米香與抹茶回甘。</td><td><img src="image/drink1.jpg" class="product-img"></td><td>120</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>tea02</td><td>英倫伯爵紅茶</td><td>NT$ 55</td><td>特選錫蘭紅茶為基底，佐以佛手柑香氣，茶感醇厚，散發迷人優雅的英倫風情。</td><td><img src="image/drink2.jpg" class="product-img"></td><td>115</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>tea03</td><td>珍珠鮮奶</td><td>NT$ 75</td><td>Q彈手作珍珠搭配綠光牧場直送鮮乳，濃郁奶香與黑糖香氣完美融合。</td><td><img src="image/drink3.jpg" class="product-img"></td><td>108</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>tea04</td><td>手炒黑糖鮮奶</td><td>NT$ 80</td><td>職人每日手工慢炒黑糖，淋上醇厚鮮奶，甜而不膩，帶有獨特焦糖香。</td><td><img src="image/drink4.jpg" class="product-img"></td><td>95</td><td>2026-04-29<br>20:30:00</td></tr>
+                <!-- Casual -->
+                <tr><td>shoe_casual_01</td><td>Air Max Pulse</td><td>NT$ 4,500</td><td>引領街頭潮流的巔峰之作，搭載全新加大的 Air 氣墊系統。</td><td><img src="image/A01.jpg" class="product-img"></td><td>85</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_casual_02</td><td>Nike Dunk Low</td><td>NT$ 3,100</td><td>經典 80 年代球場風範回歸，簡潔有力且百搭的色塊設計。</td><td><img src="image/A02.jpg" class="product-img"></td><td>120</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_casual_03</td><td>Air Force 1 '07</td><td>NT$ 3,400</td><td>傳奇仍在續寫。俐落的皮革邊緣與正好合適的亮點，展現最純粹的街頭精神。</td><td><img src="image/A03.jpg" class="product-img"></td><td>200</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_casual_04</td><td>Blazer Mid '77</td><td>NT$ 3,100</td><td>復古風格與現代科技的交匯，經典的 Swoosh 標誌與仿舊處理。</td><td><img src="image/A04.jpg" class="product-img"></td><td>65</td><td>2026-04-29<br>22:00:00</td></tr>
                 
-                <tr><td>cake01</td><td>草莓鮮奶油蛋糕</td><td>NT$ 120</td><td>綿密海綿蛋糕搭配新鮮草莓與特調鮮奶油，甜而不膩的夢幻滋味。</td><td><img src="image/cake1.jpg" class="product-img"></td><td>50</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>cake02</td><td>芒果夏洛特</td><td>NT$ 130</td><td>外圍酥脆手指餅乾，包裹著香濃芒果慕斯與新鮮芒果果肉，夏日限定。</td><td><img src="image/cake2.JPG" class="product-img"></td><td>45</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>cake03</td><td>經典黑森林</td><td>NT$ 110</td><td>濃郁巧克力蛋糕體加上酒漬櫻桃，鋪滿巧克力碎片，經典德式風味。</td><td><img src="image/cake3.jpg" class="product-img"></td><td>60</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>cake04</td><td>法式檸檬塔</td><td>NT$ 100</td><td>酥脆塔皮搭配酸甜平衡的法式檸檬奶油餡，清新解膩的好選擇。</td><td><img src="image/cake4.jpg" class="product-img"></td><td>55</td><td>2026-04-29<br>20:30:00</td></tr>
+                <!-- Sport -->
+                <tr><td>shoe_sport_01</td><td>Pegasus 40</td><td>NT$ 3,500</td><td>回彈力十足的腳感，專為長距離奔跑設計。無論是日常跑步還是馬拉松，它都是你的最佳夥伴。</td><td><img src="image/B01.jpg" class="product-img"></td><td>150</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_sport_02</td><td>Metcon 9</td><td>NT$ 4,500</td><td>訓練場上的全能王者。更大的 Hyperlift 板件與橡膠包覆。</td><td><img src="image/B02.jpg" class="product-img"></td><td>40</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_sport_03</td><td>LeBron NXXT Gen</td><td>NT$ 5,200</td><td>為當今快節奏的比賽量身打造，靈活且支撐力強，讓你像國王一樣統治球場。</td><td><img src="image/B03.jpg" class="product-img"></td><td>30</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_sport_04</td><td>Zoom Fly 5</td><td>NT$ 4,900</td><td>將競速感融入日常訓練。碳纖維板與 ZoomX 泡棉的組合。</td><td><img src="image/B04.jpg" class="product-img"></td><td>55</td><td>2026-04-29<br>22:00:00</td></tr>
 
-                <tr><td>bread01</td><td>法式經典長棍</td><td>NT$ 65</td><td>外皮酥脆內裡充滿麥香，適合單吃或搭配濃湯的經典法國麵包。</td><td><img src="image/bread1.JPG" class="product-img"></td><td>80</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>bread02</td><td>綜合雜糧麵包</td><td>NT$ 80</td><td>富含多種穀物與堅果，口感紮實有嚼勁，健康滿分的美味選擇。</td><td><img src="image/bread2.JPG" class="product-img"></td><td>70</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>bread03</td><td>奶油海鹽羅宋</td><td>NT$ 70</td><td>濃郁奶油香氣與微鹹海鹽的完美結合，層層分明的酥脆口感。</td><td><img src="image/bread3.JPG" class="product-img"></td><td>90</td><td>2026-04-29<br>20:30:00</td></tr>
-                <tr><td>bread04</td><td>香蒜帕瑪森</td><td>NT$ 75</td><td>塗滿特製香蒜奶油與帕瑪森起司，烤至金黃酥脆，香氣四溢。</td><td><img src="image/bread4.jpg" class="product-img"></td><td>85</td><td>2026-04-29<br>20:30:00</td></tr>
+                <!-- High -->
+                <tr><td>shoe_high_01</td><td>Nike Mag 2011</td><td>NT$ 880,000</td><td>來自未來的傳奇。這不僅是一雙鞋，更是科技與電影文化的終極結晶。</td><td><img src="image/C01.jpg" class="product-img"></td><td>5</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_high_02</td><td>Air Jordan 1 x Off-White</td><td>NT$ 150,000</td><td>解構主義的代表作。Virgil Abloh 的天才設計將經典 AJ1 重新定義為藝術品。</td><td><img src="image/C02.jpg" class="product-img"></td><td>12</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_high_03</td><td>Adapt BB 2.0</td><td>NT$ 12,500</td><td>自動繫帶科技的巔峰，透過手機 App 精確調整緊度，體驗真正的科技未來。</td><td><img src="image/C03.jpg" class="product-img"></td><td>25</td><td>2026-04-29<br>22:00:00</td></tr>
+                <tr><td>shoe_high_04</td><td>Air Yeezy 2 Red October</td><td>NT$ 350,000</td><td>潮流史上的巔峰轉折點，全紅色的震撼視覺與稀缺性，使其成為永恆的傳奇。</td><td><img src="image/C04.jpg" class="product-img"></td><td>8</td><td>2026-04-29<br>22:00:00</td></tr>
             </tbody>
         </table>
 
-        <div class="footer-text">目前共有 12 種 星巴克產品</div>
+        <div class="footer-text">目前共有 12 種 NIKE TECH 產品資料</div>
     </div>
 
 </body>
