@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品介紹 - 得正 3C</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: radial-gradient(circle at 10% 20%, rgba(28, 43, 90, 0.05) 0%, rgba(244, 246, 248, 1) 90.1%); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .navbar { background: #1C2B5A; padding: 10px 20px; border-bottom: 2px solid #C5A880; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .navbar-container { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .navbar-brand-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand-link:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+        .navbar-brand-logo-img {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .navbar-brand-text {
+            font-weight: bold;
+            color: white;
+            font-size: 1.15rem;
+            white-space: nowrap;
+        }
+        .navbar-left-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: white !important;
+            background: #C5A880;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(197, 168, 128, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .navbar-logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(197, 168, 128, 0.5);
+            filter: brightness(1.1);
+        }
+        #logo-cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #C5A880;
+            color: white !important;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            line-height: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border: 1.5px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 0 2px;
+            box-sizing: border-box;
+        }
+        .navbar-menu { display: flex; list-style: none; gap: 20px; align-items: center; margin: 0; padding: 0; }
+        .navbar-menu li { position: relative; }
+        .navbar-menu a { text-decoration: none; color: white; font-weight: 500; transition: color 0.3s ease; font-size: 0.95rem; }
+        .navbar-menu a:hover { color: #C5A880; }
+        .navbar-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
+
+        .mobile-member-display {
+            display: none;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            white-space: nowrap;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            height: 38px;
+        }
+        .mobile-member-display:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            color: #C5A880;
+        }
+
+        .product-page-wrapper { flex: 1; padding: 4rem 2rem; display: flex; justify-content: center; align-items: center; }
+        .product-detail-container { 
+            background: white; max-width: 1000px; width: 100%; border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06); display: flex; overflow: hidden; position: relative;
+        }
+        .breadcrumb { position: absolute; top: 20px; left: 30px; font-size: 0.9rem; color: #888; }
+        .breadcrumb a { color: #C5A880; text-decoration: none; }
+        
+        .image-section { flex: 1; background: linear-gradient(135deg, rgba(28, 43, 90, 0.05) 0%, rgba(197, 168, 128, 0.15) 100%); padding: 4rem; display: flex; justify-content: center; align-items: center; }
+        .image-section img { width: 100%; max-width: 350px; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.12); transition: transform 0.3s ease; }
+        .image-section img:hover { transform: scale(1.03); }
+
+        .info-section { flex: 1; padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; }
+        .badge { display: inline-block; background: #FF6B6B; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 15px; letter-spacing: 1px; }
+        .pd-title { font-size: 2.5rem; color: #1C2B5A; font-weight: 700; margin-bottom: 15px; }
+        .pd-desc { font-size: 1rem; color: #666; line-height: 1.8; margin-bottom: 25px; }
+        .pd-price { font-size: 2.2rem; font-weight: 700; color: #1C2B5A; margin-bottom: 25px; }
+        
+        .option-group { margin-bottom: 20px; }
+        .option-title { font-weight: 600; color: #1C2B5A; margin-bottom: 10px; font-size: 1.1rem; }
+        .pill-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .pill { padding: 8px 18px; border: 2px solid #1C2B5A; border-radius: 30px; color: #1C2B5A; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+        .pill:hover { border-color: #C5A880; color: #C5A880; }
+        .pill.active { background: #1C2B5A; color: white; border-color: transparent; box-shadow: 0 4px 10px rgba(28, 43, 90, 0.2); }
+
+        .qty-container { display: flex; align-items: center; gap: 15px; }
+        .qty-btn { background: #1C2B5A; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; }
+        .qty-btn:hover { background: #2E4A7D; color: white; transform: scale(1.1); }
+        .qty-input { width: 60px; height: 40px; text-align: center; border: 2px solid #1C2B5A; border-radius: 10px; font-size: 1.2rem; font-weight: bold; color: #1C2B5A; outline: none; }
+
+        .btn-add-cart { background: #1C2B5A; color: white; border: none; padding: 18px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; box-shadow: 0 10px 20px rgba(28, 43, 90, 0.2); display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-add-cart:hover { background: #2E4A7D; transform: translateY(-3px); box-shadow: 0 15px 25px rgba(28, 43, 90, 0.3); }
+
+        .pd-stock {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 30px;
+            width: fit-content;
+        }
+
+        @media (max-width: 900px) {
+            .product-detail-container { flex-direction: column; }
+            .image-section { padding: 3rem 2rem; } .image-section img { max-width: 250px; }
+            .info-section { padding: 3rem 2rem; } .pd-title { font-size: 2rem; }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-menu { display: none; flex-direction: column; background: #1C2B5A; position: absolute; top: 100%; left: 0; right: 0; width: 100%; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+            .navbar-menu.active { display: flex; } .navbar-toggle { display: block; }
+            .navbar.logged-in .mobile-member-display {
+                display: flex !important;
+            }
+        }
+
+        /* Footer Styles */
+        .footer { background: #1C2B5A; padding: 4rem 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; position: relative; overflow: hidden; border-top: 2px solid #C5A880; }
+        .footer-section { display: flex; flex-direction: column; gap: 1.2rem; min-width: 0; }
+        .footer-section h3 { color: white; font-size: 1.3rem; font-weight: 600; position: relative; padding-bottom: 0.8rem; margin-bottom: 0.5rem; }
+        .footer-section h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 3px; background: #C5A880; border-radius: 2px; }
+        .footer-section p, .footer-section ul li { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+        .footer-section ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.8rem; }
+        .footer-section ul li { display: flex; align-items: center; transition: transform 0.3s ease; white-space: nowrap; }
+        .footer-section ul li a { text-decoration: none; color: inherit; width: 100%; display: inline-block; }
+        .footer-section ul li:hover { transform: translateX(5px); color: #C5A880; }
+        .social-links { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.5rem; }
+        .social-links a { text-decoration: none; color: rgba(255, 255, 255, 0.7); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; white-space: nowrap; }
+        .social-links a:hover { background: #C5A880; color: white; transform: translateY(-2px); }
+        .social-logo { width: 20px; height: 20px; margin-right: 8px; }
+        @media (max-width: 480px) {
+            .navbar-brand-text { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left-container">
+                <a href="index.html" class="navbar-brand-link">
+                    <img src="image/logo.jpeg" alt="得正 3C" class="navbar-brand-logo-img">
+                    <span class="navbar-brand-text">得正 3C</span>
+                </a>
+                <a href="cart.html" class="navbar-logo">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="logo-cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+            <a href="profile.html" id="mobile-member-display" class="mobile-member-display"></a>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a></li>
+                <li><a href="index.html#drinks"><i class="fa-solid fa-mobile-screen-button"></i> 手機平板</a></li>
+                <li><a href="index.html#donuts"><i class="fa-solid fa-keyboard"></i> 電腦週邊</a></li>
+                <li><a href="index.html#fruits"><i class="fa-solid fa-house-laptop"></i> 智慧家居</a></li>
+                <li><a href="leaderboard.html"><i class="fa-solid fa-crown"></i> 排行榜</a></li>
+                <li><a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> 購物車 <span id="cart-badge" style="background: #C5A880; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.75rem; vertical-align: top; display: none;">0</span></a></li>
+                
+                <li><a href="database_demo.html" style="color: #C5A880; font-weight: bold;"><i class="fa-solid fa-database"></i> 資料庫</a></li>
+
+                <li id="nav-login"><a href="login.html"><i class="fa-solid fa-user"></i> 登入/註冊</a></li>
+                <li id="nav-user" style="display:none;"><a href="profile.html" id="user-display" style="color:#C5A880; font-weight:bold;"></a></li>
+                <li id="nav-logout" style="display:none;"><a href="#" id="btn-logout" style="color:#ff4d4d;">登出</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="product-page-wrapper">
+        <div class="product-detail-container">
+            <div class="breadcrumb"><a href="index.html">首頁</a> > <span style="color:#C5A880;">商品詳細</span></div>
+            
+            <div class="image-section">
+                <img id="pd-image" src="" alt="商品圖片">
+            </div>
+            
+            <div class="info-section">
+                <div id="pd-badge" class="badge">推薦商品</div>
+                <h1 class="pd-title" id="pd-name">載入中...</h1>
+                <p class="pd-desc" id="pd-desc">商品描述載入中，請稍候...</p>
+                <div class="pd-price" id="pd-price">NT$ 0</div>
+                <div id="pd-stock" class="pd-stock" style="margin-bottom: 20px;"></div>
+
+                <div class="option-group" id="sugar-group">
+                    <div class="option-title"><i class="fa-solid fa-microchip"></i> 規格選擇</div>
+                    <div class="pill-container" id="sugar-options">
+                        <div class="pill" onclick="selectPill(this, 'sugar-options')">128GB</div>
+                        <div class="pill active" onclick="selectPill(this, 'sugar-options')">256GB</div>
+                        <div class="pill" onclick="selectPill(this, 'sugar-options')">512GB</div>
+                        <div class="pill" onclick="selectPill(this, 'sugar-options')">1TB</div>
+                        <div class="pill" onclick="selectPill(this, 'sugar-options')">2TB</div>
+                    </div>
+                </div>
+
+                <div class="option-group" id="ice-group">
+                    <div class="option-title"><i class="fa-solid fa-palette"></i> 顏色選擇</div>
+                    <div class="pill-container" id="ice-options">
+                        <div class="pill active" onclick="selectPill(this, 'ice-options')">鈦灰色</div>
+                        <div class="pill" onclick="selectPill(this, 'ice-options')">鈦黑色</div>
+                        <div class="pill" onclick="selectPill(this, 'ice-options')">鈦白色</div>
+                        <div class="pill" onclick="selectPill(this, 'ice-options')">鈦藍色</div>
+                        <div class="pill" onclick="selectPill(this, 'ice-options')">金色</div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <div class="option-title"><i class="fa-solid fa-plus-minus"></i> 購買數量</div>
+                    <div class="qty-container">
+                        <button class="qty-btn" onclick="changeQty(-1)"><i class="fa-solid fa-minus"></i></button>
+                        <input type="number" id="pd-qty" class="qty-input" value="1" min="1" readonly>
+                        <button class="qty-btn" onclick="changeQty(1)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <button class="btn-add-cart" id="add-to-cart-btn">
+                    <i class="fa-solid fa-cart-plus"></i> 加入購物車
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-section">
+            <h3>品牌區塊</h3>
+            <p>得正 3C - 手機平板 x 電腦週邊 x 智慧家居</p>
+            <div class="social-links">
+                <a href="https://instagram.com" target="_blank"><img src="image/Instagram-logo.png" alt="Instagram Logo" class="social-logo"> Instagram</a>
+                <a href="https://line.me" target="_blank"><img src="image/line-logo.png" alt="LINE Logo" class="social-logo"> LINE</a>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h3>BUSINESS 商業區塊</h3>
+            <ul>
+                <li><a href="index.html#drinks">📱 智慧手機與平板</a></li>
+                <li><a href="index.html#donuts">💻 電腦週邊與配件</a></li>
+                <li><a href="index.html#fruits">🏠 智慧穿戴與智能家居</a></li>
+                <li><a href="leaderboard.html">⭐ 熱銷排行</a></li>
+                <li><a href="database_demo.html" style="color:#C5A880; font-weight:bold;">📦 資料庫展示頁</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>CONTACT 聯繫區塊</h3>
+            <p>📧 電子郵件：a113280055@gm.usc.edu.tw</p>
+            <p>📞 電話：0952702813</p>
+            <p>🏪 地址：台北市大安區忠孝東路四段123號</p>
+        </div>
+        <div class="footer-section">
+            <h3>版權資訊</h3>
+            <p>© 2026 得正 3C. All rights reserved.</p>
+            <p>設計製作者：薛翔謙</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyC-LcCfcPYCYAQZ7n45YCe6tCY_jb-ygvI", authDomain: "sonicboom-shop.firebaseapp.com", projectId: "sonicboom-shop", storageBucket: "sonicboom-shop.firebasestorage.app", messagingSenderId: "976804831944", appId: "1:976804831944:web:6ede6a95196478bd49bbfd", measurementId: "G-3FEKWL0QXZ" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            const navLogin = document.getElementById('nav-login');
+            const navUser = document.getElementById('nav-user');
+            const navLogout = document.getElementById('nav-logout');
+            const userDisplay = document.getElementById('user-display');
+            const navbar = document.querySelector('.navbar');
+            const mobileMemberDisplay = document.getElementById('mobile-member-display');
+
+            if (user) {
+                navLogin.style.display = 'none';
+                navUser.style.display = 'block';
+                navLogout.style.display = 'block';
+                const memberName = user.displayName || user.email.split('@')[0];
+                userDisplay.innerHTML = `<i class="fa-solid fa-user-check"></i> 會員 ${memberName}`;
+                if (mobileMemberDisplay) {
+                    mobileMemberDisplay.innerHTML = `<i class="fa-solid fa-user-check" style="color: #C5A880;"></i> 會員:${memberName}`;
+                }
+                if (navbar) {
+                    navbar.classList.add('logged-in');
+                }
+            } else {
+                navLogin.style.display = 'block';
+                navUser.style.display = 'none';
+                navLogout.style.display = 'none';
+                if (navbar) {
+                    navbar.classList.remove('logged-in');
+                }
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', (e) => {
+            e.preventDefault();
+            if(confirm("確定要登出嗎？")) { localStorage.removeItem('dejeng3c_cart'); signOut(auth).then(() => { window.location.href = "index.html"; }); }
+        });
+    </script>
+
+    <script>
+        function syncInventory() {
+            let baseInventory = JSON.parse(localStorage.getItem('dejeng3c_base_inventory')) || {};
+            let baseInvUpdated = false;
+            
+            const allProducts = [
+                "iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", "iPad Pro M4", "Google Pixel 8 Pro", "ASUS ROG Phone 8 Pro", 
+                "Xiaomi 14 Ultra", "Sony Xperia 1 VI", "iPad Air 6", "Samsung Galaxy Tab S9", "iPhone 15", 
+                "Google Pixel 8a", "Xiaomi Redmi Note 13 Pro", "ASUS Zenfone 11 Ultra", "OPPO Reno11 Pro", "Sony Xperia 10 VI", 
+                "Samsung Galaxy Fold 5", "iPhone 15 Plus", "iPad 10th Gen", "Logitech MX Master 3S", "Keychron K2 機械鍵盤", 
+                "MacBook Pro M3", "ASUS RT-AX88U Pro 路由器", "WD Black SN850X 2TB SSD", "ROG Swift PG32UCDM 螢幕", "Sony WH-1000XM5 耳機", 
+                "Apple Watch Series 9", "Garmin Venu 3", "AirPods Pro 2", "Google Nest Hub 2", "Dyson Purifier Cool", 
+                "Philips Hue 智慧燈泡", "Nintendo Switch OLED", "DJI Mini 4 Pro 空拍機", "GoPro HERO12 Black", "HomePod 智慧音箱", 
+                "Xiaomi 智慧攝影機 C400", "Dyson V15 Detect"
+            ];
+            
+            allProducts.forEach(name => {
+                if (baseInventory[name] === undefined) {
+                    baseInventory[name] = Math.floor(Math.random() * 101) + 20; // 隨機庫存 20-120
+                    baseInvUpdated = true;
+                }
+            });
+            
+            if (baseInvUpdated) {
+                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('dejeng3c_orders')) || [];
+            const computedInventory = {};
+            for (let name in baseInventory) {
+                computedInventory[name] = baseInventory[name];
+            }
+            
+            orders.forEach(order => {
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach(itemStr => {
+                        const match = itemStr.match(/(.*?)(?:\s*\(.*?\))?\s*x(\d+)/);
+                        if (match) {
+                            const pName = match[1].trim();
+                            const pQty = parseInt(match[2]);
+                            if (computedInventory[pName] !== undefined) {
+                                computedInventory[pName] -= pQty;
+                            } else {
+                                baseInventory[pName] = Math.floor(Math.random() * 101) + 20;
+                                baseInvUpdated = true;
+                                computedInventory[pName] = baseInventory[pName] - pQty;
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (baseInvUpdated) {
+                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
+            }
+            
+            localStorage.setItem('dejeng3c_computed_inventory', JSON.stringify(computedInventory));
+            return computedInventory;
+        }
+
+        function selectPill(element, containerId) {
+            const container = document.getElementById(containerId);
+            const pills = container.getElementsByClassName('pill');
+            for(let i = 0; i < pills.length; i++) { pills[i].classList.remove('active'); }
+            element.classList.add('active');
+        }
+
+        function changeQty(amount) {
+            const qtyInput = document.getElementById('pd-qty');
+            let currentQty = parseInt(qtyInput.value);
+            currentQty += amount;
+            if(currentQty < 1) currentQty = 1;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            if (productId && productsDB[productId]) {
+                const pd = productsDB[productId];
+                const inventory = JSON.parse(localStorage.getItem('dejeng3c_computed_inventory')) || {};
+                const stock = inventory[pd.name] !== undefined ? inventory[pd.name] : 100;
+                if (stock <= 0) {
+                    currentQty = 1;
+                } else if (currentQty > stock) {
+                    currentQty = stock;
+                    alert(`抱歉，購買數量已達庫存上限（${stock} 件）！`);
+                }
+            }
+            qtyInput.value = currentQty;
+        }
+
+        const productsDB = {
+            "tea01": { name: "iPhone 15 Pro Max", price: 44900, img: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60", desc: "鈦金屬設計，配備強大的 A17 Pro 晶片，自訂的動作按鈕，以及歷來最強大的 iPhone 相機系統。" },
+            "tea02": { name: "Samsung Galaxy S24 Ultra", price: 43900, img: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&auto=format&fit=crop&q=60", desc: "鈦金屬邊框，搭載 Galaxy AI，配備 2 億畫素相機與內建 S Pen，開啟智慧生活新篇章。" },
+            "tea03": { name: "iPad Pro M4", price: 34900, img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60", desc: "搭載全新 M4 晶片，突破性的雙層 OLED 螢幕，極致纖薄設計，專為專業工作者打造。" },
+            "tea04": { name: "Google Pixel 8 Pro", price: 33900, img: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60", desc: "搭載 Google Tensor G3 晶片與先進的 AI 影像處理技術，提供最純淨的 Android 體驗。" },
+            "tea05": { name: "ASUS ROG Phone 8 Pro", price: 38990, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60", desc: "專為玩家設計的終極電競手機，搭載驍龍 8 Gen 3，配備獨家散熱系統與 AniMe Vision 燈效。" },
+            "tea06": { name: "Xiaomi 14 Ultra", price: 34999, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60", desc: "徠卡光學四鏡頭，一吋大底主鏡頭，搭載全新 Xiaomi HyperOS，極致影像旗艦。" },
+            "tea07": { name: "Sony Xperia 1 VI", price: 39990, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60", desc: "頂級蔡司鏡頭，支援真光學變焦，配備無孔全螢幕與專業錄音級立體聲喇叭。" },
+            "tea08": { name: "iPad Air 6", price: 19900, img: "https://images.unsplash.com/photo-1589739900243-4b52cd9b104e?w=500&auto=format&fit=crop&q=60", desc: "搭載 M2 晶片，全新 11 吋與 13 吋選擇，色彩繽紛，支援 Apple Pencil Pro。" },
+            "tea09": { name: "Samsung Galaxy Tab S9", price: 23990, img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60", desc: "搭載 Dynamic AMOLED 2X 螢幕，具備 IP68 防塵防水，隨附 S Pen，極致視聽娛樂。" },
+            "tea10": { name: "iPhone 15", price: 29900, img: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60", desc: "動態島首次登場，配備 4800 萬畫素相機與 USB-C 接口，融合時尚與實用。" },
+            "tea11": { name: "Google Pixel 8a", price: 16490, img: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60", desc: "超值 Google AI 手機，配備傑出相機與魔術橡皮擦功能，輕鬆擁有旗艦規格。" },
+            "tea12": { name: "Xiaomi Redmi Note 13 Pro", price: 9999, img: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60", desc: "2 億畫素超清主相機，120Hz AMOLED 螢幕，支援 67W 快充，超高性價比之選。" },
+            "tea13": { name: "ASUS Zenfone 11 Ultra", price: 29990, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60", desc: "全新大螢幕設計，搭載強大 AI 功能，配備 6 軸防手震單眼級相機。" },
+            "tea27": { name: "OPPO Reno11 Pro", price: 16990, img: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60", desc: "黃金人像鏡頭，超薄輕巧機身，搭載 80W SuperVOOC 超級閃充，美學與實力兼具。" },
+            "tea28": { name: "Sony Xperia 10 VI", price: 13990, img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60", desc: "輕量化美型機身，極致的兩天續航電力，支援高解析音質與防水防塵。" },
+            "tea31": { name: "Samsung Galaxy Fold 5", price: 56888, img: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&auto=format&fit=crop&q=60", desc: "摺疊螢幕極致之作，超大 7.6 吋主螢幕，全新雙軌鉸鏈設計，極致多工處理。" },
+            "tea32": { name: "iPhone 15 Plus", price: 32900, img: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60", desc: "超大 6.7 吋螢幕，超強電力續航，動態島設計，為大螢幕愛好者設計。" },
+            "tea33": { name: "iPad 10th Gen", price: 11900, img: "https://images.unsplash.com/photo-1589739900243-4b52cd9b104e?w=500&auto=format&fit=crop&q=60", desc: "全螢幕設計，配備 A14 仿生晶片，支援 Apple Pencil 與巧控鍵盤雙面夾。" },
+            
+            "donut01": { name: "Logitech MX Master 3S", price: 3290, img: "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&auto=format&fit=crop&q=60", desc: "旗艦級無線滑鼠，配備 8,000 DPI 高精準感應器，獨家 MagSpeed 電磁滾輪。" },
+            "donut02": { name: "Keychron K2 機械鍵盤", price: 2580, img: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&auto=format&fit=crop&q=60", desc: "75% 緊湊配置無線機械鍵盤，支援 Mac/Windows，配備 Gateron 熱插拔軸體與 RGB 背光。" },
+            "donut03": { name: "MacBook Pro M3", price: 54900, img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&auto=format&fit=crop&q=60", desc: "搭載強大 M3 晶片，Liquid Retina XDR 顯示器，超長續航力，專業級筆電首選。" },
+            "donut04": { name: "ASUS RT-AX88U Pro 路由器", price: 8888, img: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=500&auto=format&fit=crop&q=60", desc: "雙頻 WiFi 6 電競路由器，支援 2.5G 連接埠，提供極速且穩定的居家網路體驗。" },
+            "donut05": { name: "WD Black SN850X 2TB SSD", price: 5290, img: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500&auto=format&fit=crop&q=60", desc: "頂級 PCIe Gen4 NVMe SSD，讀取速度高達 7300MB/s，專為極速遊戲與專業創作打造。" },
+            "donut06": { name: "ROG Swift PG32UCDM 螢幕", price: 42900, img: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=60", desc: "32 吋 4K QD-OLED 電競螢幕，240Hz 更新率，0.03ms 反應時間，極致畫質與流暢度。" },
+            "donut07": { name: "Sony WH-1000XM5 耳機", price: 9900, img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60", desc: "業界頂級主動降噪耳罩式耳機，音質純淨細緻，配備卓越通話品質與配戴舒適感。" },
+
+            "fruit01": { name: "Apple Watch Series 9", price: 13500, img: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=500&auto=format&fit=crop&q=60", desc: "搭載 S9 SiP 晶片，支援神奇的雙指互碰兩下手勢，配備更明亮的螢幕與健康偵測。" },
+            "fruit02": { name: "Garmin Venu 3", price: 14990, img: "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=500&auto=format&fit=crop&q=60", desc: "GPS 智慧腕錶，具備進階健康監測與運動模式，內建喇叭與麥克風可接聽電話。" },
+            "fruit03": { name: "AirPods Pro 2", price: 7490, img: "https://images.unsplash.com/photo-1588449668365-d15e397f6787?w=500&auto=format&fit=crop&q=60", desc: "搭載 H2 晶片，主動降噪效能提升兩倍，具備適應性音訊與通透模式。" },
+            "fruit04": { name: "Google Nest Hub 2", price: 3180, img: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&auto=format&fit=crop&q=60", desc: "7 吋智慧螢幕，內建 Google 助理，支援手勢控制，輕鬆控管全家智慧裝置。" },
+            "fruit05": { name: "Dyson Purifier Cool", price: 18900, img: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&auto=format&fit=crop&q=60", desc: "二合一空氣清淨機，全機密封符合 HEPA H13 標準，淨化空氣同時吹送清涼風。" },
+            "fruit06": { name: "Philips Hue 智慧燈泡", price: 4990, img: "https://images.unsplash.com/photo-1550985616-10810253b84d?w=500&auto=format&fit=crop&q=60", desc: "智慧照明入門套裝，支援 1600 萬色，透過手機或語音助理輕鬆調整居家氛圍。" },
+            "fruit07": { name: "Nintendo Switch OLED", price: 10480, img: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=500&auto=format&fit=crop&q=60", desc: "配置 7 吋 OLED 螢幕，色彩鮮明，全新設計轉軸支架，隨時隨地享受遊戲樂趣。" },
+            "fruit08": { name: "DJI Mini 4 Pro 空拍機", price: 22090, img: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=500&auto=format&fit=crop&q=60", desc: "低於 249 克的超輕量空拍機，具備全向避障與 4K 頂級影像，新手也能輕鬆上手。" },
+            "fruit09": { name: "GoPro HERO12 Black", price: 14900, img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60", desc: "頂級運動相機，支援 5.3K HDR 影片，卓越的 HyperSmooth 6.0 防手震技術。" },
+            "fruit10": { name: "HomePod 智慧音箱", price: 9300, img: "https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&auto=format&fit=crop&q=60", desc: "頂級音質智慧音箱，精準調校的音響系統，內建 Siri 助理與室內溫溼度感測器。" },
+            "fruit11": { name: "Xiaomi 智慧攝影機 C400", price: 1095, img: "https://images.unsplash.com/photo-1558002038-1055907df827?w=500&auto=format&fit=crop&q=60", desc: "400 萬畫素超清鏡量，支援 360 度旋轉監控與紅外線夜視，居家安全的智慧守護者。" },
+            "fruit12": { name: "Dyson V15 Detect", price: 24900, img: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=500&auto=format&fit=crop&q=60", desc: "旗艦級無線吸塵器，配備智慧光學偵測技術與壓電感應器，精確掌控清潔效果。" }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if(productId && productsDB[productId]) {
+                const pd = productsDB[productId];
+                document.title = `${pd.name} - 得正 3C`;
+                document.getElementById('pd-image').src = pd.img;
+                document.getElementById('pd-name').innerText = pd.name;
+                document.getElementById('pd-desc').innerText = pd.desc;
+                
+                // 檢查特價
+                const statusSettings = JSON.parse(localStorage.getItem('dejeng3c_product_settings')) || {};
+                const promoPrice = statusSettings[pd.name]?.promoPrice;
+                if (promoPrice && promoPrice < pd.price) {
+                    document.getElementById('pd-price').innerHTML = `
+                        <span style="text-decoration: line-through; color: #95a5a6; font-size: 1.4rem; margin-right: 10px;">NT$ ${pd.price}</span>
+                        <span style="color: #e74c3c; font-weight: bold;">NT$ ${promoPrice}</span>
+                    `;
+                    const badge = document.getElementById('pd-badge');
+                    badge.innerHTML = `<i class="fa-solid fa-fire"></i> 限時特價中`;
+                    badge.style.background = 'linear-gradient(135deg, #ff416c, #ff4b2b)';
+                } else {
+                    document.getElementById('pd-price').innerText = `NT$ ${pd.price}`;
+                }
+                
+                // 動態判斷是否顯示規格/顏色
+                if (!productId.startsWith('tea')) {
+                    document.getElementById('sugar-group').style.display = 'none';
+                    document.getElementById('ice-group').style.display = 'none';
+                    if (!(promoPrice && promoPrice < pd.price)) {
+                        document.getElementById('pd-badge').innerText = '原廠公司貨 / 一年保固';
+                        document.getElementById('pd-badge').style.background = '#2ECC71';
+                    }
+                }
+
+                document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+                    const qty = parseInt(document.getElementById('pd-qty').value);
+                    let sugar = '--';
+                    let ice = '--';
+                    
+                    if (productId.startsWith('tea')) {
+                        sugar = document.querySelector('#sugar-options .active').innerText;
+                        ice = document.querySelector('#ice-options .active').innerText;
+                    }
+                    
+                    let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
+                    const existingIndex = cart.findIndex(item => item.id === productId && item.sugar === sugar && item.ice === ice);
+                    
+                    // Check stock
+                    const inventory = syncInventory();
+                    const stock = inventory[pd.name] !== undefined ? inventory[pd.name] : 100;
+                    let currentQtyInCart = existingIndex > -1 ? cart[existingIndex].qty : 0;
+                    if (currentQtyInCart + qty > stock) {
+                        alert(`抱歉，【${pd.name}】已無足夠庫存！目前庫存剩餘 ${stock} 件，您的購物車中已有 ${currentQtyInCart} 件。`);
+                        return;
+                    }
+
+                    if (existingIndex > -1) { cart[existingIndex].qty += qty; } 
+                    else { cart.push({ id: productId, qty: qty, sugar: sugar, ice: ice }); }
+
+                    localStorage.setItem('dejeng3c_cart', JSON.stringify(cart));
+                    let alertText = productId.startsWith('tea') ? `(${sugar}/${ice}) ` : '';
+                    alert(`【${pd.name}】${alertText}x ${qty} 已加入購物車！`);
+                    updateCartBadge();
+                    window.location.href = "cart.html";
+                });
+                
+                // 檢查是否完售或下架
+                const inventory = syncInventory();
+                
+                let isSoldOut = inventory[pd.name] !== undefined && inventory[pd.name] <= 0;
+                let isDelisted = statusSettings[pd.name] && statusSettings[pd.name].status === 'delisted';
+                
+                if(isDelisted || isSoldOut) {
+                    const btn = document.getElementById('add-to-cart-btn');
+                    btn.disabled = true;
+                    btn.style.background = '#ccc';
+                    btn.style.cursor = 'not-allowed';
+                    btn.innerHTML = isDelisted ? '<i class="fa-solid fa-ban"></i> 此商品已下架' : '<i class="fa-solid fa-ban"></i> 已完售';
+                }
+
+                // Render stock badge
+                const stockVal = inventory[pd.name] !== undefined ? inventory[pd.name] : 100;
+                const stockEl = document.getElementById('pd-stock');
+                if(stockEl) {
+                    if (isDelisted) {
+                        stockEl.style.color = '#7f8c8d';
+                        stockEl.style.backgroundColor = '#f0f3f4';
+                        stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 商品狀態: 已下架`;
+                    } else if (stockVal <= 0) {
+                        stockEl.style.color = '#e74c3c';
+                        stockEl.style.backgroundColor = '#fdedec';
+                        stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 庫存剩下: 0 (已完售)`;
+                    } else if (stockVal <= 10) {
+                        stockEl.style.color = '#e67e22';
+                        stockEl.style.backgroundColor = '#fdf2e9';
+                        stockEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 僅剩 ${stockVal} 件，欲購從速！`;
+                    } else {
+                        stockEl.style.color = '#27ae60';
+                        stockEl.style.backgroundColor = '#e8f8f5';
+                        stockEl.innerHTML = `<i class="fa-solid fa-box-open"></i> 商品庫存: ${stockVal} 件`;
+                    }
+                }
+            } else {
+                alert('找不到該商品！將返回首頁。');
+                window.location.href = "index.html";
+            }
+            
+            updateCartBadge();
+        });
+        
+        const navbarToggle = document.getElementById('navbarToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        navbarToggle.addEventListener('click', () => { navbarMenu.classList.toggle('active'); });
+
+        function updateCartBadge() {
+            let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
+            let totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            let badge = document.getElementById('cart-badge');
+            if(badge) {
+                if(totalQty > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.innerText = totalQty;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            let logoBadge = document.getElementById('logo-cart-badge');
+            if(logoBadge) {
+                if(totalQty > 0) {
+                    logoBadge.style.display = 'inline-block';
+                    logoBadge.innerText = totalQty;
+                } else {
+                    logoBadge.style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

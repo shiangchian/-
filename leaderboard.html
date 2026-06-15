@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熱銷排行榜 - 得正 3C</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: radial-gradient(circle at 10% 20%, rgba(28, 43, 90, 0.05) 0%, rgba(244, 246, 248, 1) 90.1%); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar Styles */
+        .navbar { background: #1C2B5A; padding: 10px 20px; border-bottom: 2px solid #C5A880; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; }
+        .navbar-container { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .navbar-brand-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand-link:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+        .navbar-brand-logo-img {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .navbar-brand-text {
+            font-weight: bold;
+            color: white;
+            font-size: 1.15rem;
+            white-space: nowrap;
+        }
+        .navbar-left-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: white !important;
+            background: #C5A880;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(197, 168, 128, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .navbar-logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(197, 168, 128, 0.5);
+            filter: brightness(1.1);
+        }
+        #logo-cart-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #C5A880;
+            color: white !important;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            line-height: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border: 1.5px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            padding: 0 2px;
+            box-sizing: border-box;
+        }
+        .navbar-menu { display: flex; list-style: none; gap: 20px; align-items: center; margin: 0; padding: 0; }
+        .navbar-menu li { position: relative; }
+        .navbar-menu a { text-decoration: none; color: white; font-weight: 500; transition: color 0.3s ease; font-size: 0.95rem;}
+        .navbar-menu a:hover { color: #C5A880; }
+        .navbar-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
+
+        .mobile-member-display {
+            display: none;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            white-space: nowrap;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            height: 38px;
+        }
+        .mobile-member-display:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            color: #C5A880;
+        }
+
+        /* --- 排行榜專屬樣式 --- */
+        .leaderboard-wrapper { flex: 1; padding: 4rem 1rem; background: radial-gradient(circle at 10% 20%, rgba(28, 43, 90, 0.03) 0%, rgba(244, 246, 248, 1) 90.1%); }
+        .leaderboard-header { text-align: center; margin-bottom: 3rem; animation: fadeInUp 1s ease-out forwards; }
+        .leaderboard-header h1 { font-size: 3rem; color: #1C2B5A; font-weight: 800; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); }
+        .leaderboard-header p { font-size: 1.2rem; color: #C5A880; margin-top: 10px; }
+        
+        .rank-container { max-width: 900px; margin: 0 auto; }
+        
+        .rank-card { 
+            display: flex; align-items: center; background: white; border-radius: 20px; 
+            padding: 20px 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            transition: all 0.3s ease; opacity: 0; transform: translateY(50px);
+        }
+        .rank-card.visible { opacity: 1; transform: translateY(0); }
+        .rank-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+
+        .rank-1 { background: linear-gradient(to right, #ffffff, #fffdf0); border: 2px solid rgba(197, 168, 128, 0.3); }
+        .rank-2 { background: linear-gradient(to right, #ffffff, #f8f9fa); border: 2px solid rgba(192, 192, 192, 0.3); }
+        .rank-3 { background: linear-gradient(to right, #ffffff, #fffaf5); border: 2px solid rgba(205, 127, 50, 0.3); }
+
+        .rank-badge { width: 80px; text-align: center; font-size: 2.5rem; font-weight: 900; margin-right: 20px; }
+        .badge-gold { color: #C5A880; text-shadow: 0 2px 5px rgba(197, 168, 128, 0.3); }
+        .badge-silver { color: #C0C0C0; text-shadow: 0 2px 5px rgba(192, 192, 192, 0.4); }
+        .badge-bronze { color: #CD7F32; text-shadow: 0 2px 5px rgba(205, 127, 50, 0.4); }
+        .badge-normal { color: #A9DFBF; font-size: 2rem; }
+
+        .rank-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-right: 30px; border: 3px solid #E0F6FF; }
+        
+        .rank-info { flex-grow: 1; }
+        .rank-name { font-size: 1.5rem; font-weight: 700; color: #1C2B5A; margin-bottom: 8px; }
+        .rank-desc { font-size: 0.95rem; color: #666; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .rank-price { font-size: 1.3rem; font-weight: bold; color: #1C2B5A; }
+
+        .rank-actions { display: flex; gap: 10px; flex-direction: column; }
+        .btn-rank { padding: 10px 20px; border-radius: 50px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none; font-size: 0.95rem; }
+        .btn-cart { background: #1C2B5A; color: white; box-shadow: 0 4px 10px rgba(28, 43, 90, 0.2); }
+        .btn-cart:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(28, 43, 90, 0.4); color: white; background: #2E4A7D; }
+        .btn-more { background: white; border: 2px solid #1C2B5A; color: #1C2B5A; }
+        .btn-more:hover { background: rgba(28, 43, 90, 0.05); transform: translateY(-2px); }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .navbar-menu { display: none; flex-direction: column; background: #1C2B5A; position: absolute; top: 100%; left: 0; right: 0; width: 100%; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+            .navbar-menu.active { display: flex; } .navbar-toggle { display: block; }
+            .navbar.logged-in .mobile-member-display {
+                display: flex !important;
+            }
+            .rank-card { flex-direction: column; text-align: center; padding: 30px 20px; }
+            .rank-badge { margin-right: 0; margin-bottom: 15px; }
+            .rank-img { margin-right: 0; margin-bottom: 20px; width: 130px; height: 130px; }
+            .rank-actions { flex-direction: row; margin-top: 20px; width: 100%; justify-content: center; }
+            .btn-rank { flex: 1; }
+        }
+
+        /* Footer Styles */
+        .footer { background: #1C2B5A; padding: 4rem 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; position: relative; overflow: hidden; border-top: 2px solid #C5A880; }
+        .footer-section { display: flex; flex-direction: column; gap: 1.2rem; min-width: 0; }
+        .footer-section h3 { color: white; font-size: 1.3rem; font-weight: 600; position: relative; padding-bottom: 0.8rem; margin-bottom: 0.5rem; }
+        .footer-section h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 3px; background: #C5A880; border-radius: 2px; }
+        .footer-section p, .footer-section ul li { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; line-height: 1.6; margin: 0; }
+        .footer-section ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.8rem; }
+        .footer-section ul li a { text-decoration: none; color: inherit; width: 100%; display: inline-block; transition: transform 0.3s; }
+        .footer-section ul li a:hover { transform: translateX(5px); color: #C5A880; }
+        .social-links { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.5rem; }
+        .social-links a { text-decoration: none; color: rgba(255, 255, 255, 0.7); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.1); display: inline-flex; align-items: center; }
+        .social-links a:hover { background: #C5A880; color: white; transform: translateY(-2px); }
+        .social-logo { width: 20px; height: 20px; margin-right: 8px; }
+        
+        /* SALE 徽章動畫 */
+        @keyframes pulse-sale {
+            0% { transform: scale(1); box-shadow: 0 4px 8px rgba(255, 65, 108, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 14px rgba(255, 65, 108, 0.7); }
+            100% { transform: scale(1); box-shadow: 0 4px 8px rgba(255, 65, 108, 0.4); }
+        }
+        @media (max-width: 480px) {
+            .navbar-brand-text { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left-container">
+                <a href="index.html" class="navbar-brand-link">
+                    <img src="image/logo.jpeg" alt="得正 3C" class="navbar-brand-logo-img">
+                    <span class="navbar-brand-text">得正 3C</span>
+                </a>
+                <a href="cart.html" class="navbar-logo">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="logo-cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+            <a href="profile.html" id="mobile-member-display" class="mobile-member-display"></a>
+            <button class="navbar-toggle" id="navbarToggle">☰</button>
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a></li>
+                <li><a href="index.html#drinks"><i class="fa-solid fa-mobile-screen-button"></i> 智慧手機與平板</a></li>
+                <li><a href="index.html#donuts"><i class="fa-solid fa-laptop"></i> 電腦週邊與配件</a></li>
+                <li><a href="index.html#fruits"><i class="fa-solid fa-house-chimney-window"></i> 智慧穿戴與智能家居</a></li>
+                <li><a href="leaderboard.html" style="color: #C5A880; font-weight: bold;"><i class="fa-solid fa-crown"></i> 排行榜</a></li>
+                <li><a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> 購物車 <span id="cart-badge" style="background: #C5A880; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.75rem; vertical-align: top; display: none;">0</span></a></li>
+                
+                <li><a href="database_demo.html" style="color: #C5A880; font-weight: bold;"><i class="fa-solid fa-database"></i> 資料庫</a></li>
+ 
+                <li id="nav-login"><a href="login.html"><i class="fa-solid fa-user"></i> 登入/註冊</a></li>
+                <li id="nav-user" style="display:none;"><a href="profile.html" id="user-display" style="color:#C5A880; font-weight:bold;"></a></li>
+                <li id="nav-logout" style="display:none;"><a href="#" id="btn-logout" style="color:#ff4d4d;">登出</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="leaderboard-wrapper">
+        <div class="leaderboard-header">
+            <h1><i class="fa-solid fa-crown text-warning"></i> 本月熱銷排行榜</h1>
+            <p>得正 3C 精選，最多顧客愛戴的科技玩物</p>
+        </div>
+
+        <div class="rank-container">
+            <div class="rank-card rank-1">
+                <div class="rank-badge badge-gold"><i class="fa-solid fa-medal"></i> 1</div>
+                <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60" alt="iPad Pro M4" class="rank-img">
+                <div class="rank-info">
+                    <div class="rank-name">iPad Pro M4</div>
+                    <div class="rank-desc">搭載全新一代強效 M4 晶片與革命性 Ultra Retina XDR 顯示器，極致纖薄設計，為專業工作者與創意人士打造的頂尖平板電腦。</div>
+                    <div class="rank-price">NT$ 34900</div>
+                </div>
+                <div class="rank-actions">
+                    <button class="btn-rank btn-cart" onclick="addToCart('tea03')"><i class="fa-solid fa-cart-plus"></i> 加入</button>
+                    <a href="product.html?id=tea03" class="btn-rank btn-more">詳細</a>
+                </div>
+            </div>
+
+            <div class="rank-card rank-2">
+                <div class="rank-badge badge-silver"><i class="fa-solid fa-medal"></i> 2</div>
+                <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60" alt="iPhone 15 Pro Max" class="rank-img">
+                <div class="rank-info">
+                    <div class="rank-name">iPhone 15 Pro Max</div>
+                    <div class="rank-desc">鈦金屬設計，搭載 A17 Pro 晶片、全功能相機系統與超長電池續航力。享受最震撼的極速效能與精緻工藝。</div>
+                    <div class="rank-price">NT$ 44900</div>
+                </div>
+                <div class="rank-actions">
+                    <button class="btn-rank btn-cart" onclick="addToCart('tea01')"><i class="fa-solid fa-cart-plus"></i> 加入</button>
+                    <a href="product.html?id=tea01" class="btn-rank btn-more">詳細</a>
+                </div>
+            </div>
+
+            <div class="rank-card rank-3">
+                <div class="rank-badge badge-bronze"><i class="fa-solid fa-medal"></i> 3</div>
+                <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60" alt="Google Pixel 8 Pro" class="rank-img">
+                <div class="rank-info">
+                    <div class="rank-name">Google Pixel 8 Pro</div>
+                    <div class="rank-desc">內建 Google Tensor G3 晶片與先進 AI 相機，為您提供無與倫比的拍攝畫質、智慧助理與流暢無阻的 Android 原生體驗。</div>
+                    <div class="rank-price">NT$ 33900</div>
+                </div>
+                <div class="rank-actions">
+                    <button class="btn-rank btn-cart" onclick="addToCart('tea04')"><i class="fa-solid fa-cart-plus"></i> 加入</button>
+                    <a href="product.html?id=tea04" class="btn-rank btn-more">詳細</a>
+                </div>
+            </div>
+
+            <div class="rank-card">
+                <div class="rank-badge badge-normal">4</div>
+                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="ASUS Zenfone 11 Ultra" class="rank-img">
+                <div class="rank-info">
+                    <div class="rank-name">ASUS Zenfone 11 Ultra</div>
+                    <div class="rank-desc">全新超大螢幕旗艦！搭載最新驍龍處理器與專業三鏡頭，AI 智慧功能助您輕鬆掌握生活，超高能效與潮流外觀完美兼備。</div>
+                    <div class="rank-price">NT$ 29990</div>
+                </div>
+                <div class="rank-actions">
+                    <button class="btn-rank btn-cart" onclick="addToCart('tea13')"><i class="fa-solid fa-cart-plus"></i> 加入</button>
+                    <a href="product.html?id=tea13" class="btn-rank btn-more">詳細</a>
+                </div>
+            </div>
+
+            <div class="rank-card">
+                <div class="rank-badge badge-normal">5</div>
+                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="Xiaomi 14 Ultra" class="rank-img">
+                <div class="rank-info">
+                    <div class="rank-name">Xiaomi 14 Ultra</div>
+                    <div class="rank-desc">與徠卡聯名深度合作！搭載一吋超大感光元件與全焦段光學變焦鏡頭，極致奢華的影像大師，專為熱愛攝影的你而生。</div>
+                    <div class="rank-price">NT$ 34999</div>
+                </div>
+                <div class="rank-actions">
+                    <button class="btn-rank btn-cart" onclick="addToCart('tea06')"><i class="fa-solid fa-cart-plus"></i> 加入</button>
+                    <a href="product.html?id=tea06" class="btn-rank btn-more">詳細</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-section">
+            <h3>品牌區塊</h3>
+            <p>得正 3C - 手機平板 x 電腦週邊 x 智慧家居</p>
+            <div class="social-links">
+                <a href="https://instagram.com" target="_blank"><img src="image/Instagram-logo.png" alt="Instagram Logo" class="social-logo"> Instagram</a>
+                <a href="https://line.me" target="_blank"><img src="image/line-logo.png" alt="LINE Logo" class="social-logo"> LINE</a>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h3>BUSINESS 商業區塊</h3>
+            <ul>
+                <li><a href="index.html#drinks">📱 智慧手機與平板</a></li>
+                <li><a href="index.html#donuts">💻 電腦週邊與配件</a></li>
+                <li><a href="index.html#fruits">🏠 智慧穿戴與智能家居</a></li>
+                <li><a href="leaderboard.html">⭐ 熱銷排行</a></li>
+                <li><a href="database_demo.html" style="color:#C5A880; font-weight:bold;">📦 資料庫展示頁</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>CONTACT 聯繫區塊</h3>
+            <p>📧 電子郵件：a113280055@gm.usc.edu.tw</p>
+            <p>📞 電話：0952702813</p>
+            <p>🏪 地址：台北市大安區忠孝東路四段123號</p>
+        </div>
+        <div class="footer-section">
+            <h3>版權資訊</h3>
+            <p>© 2026 得正 3C. All rights reserved.</p>
+            <p>設計製作者：薛翔謙</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyC-LcCfcPYCYAQZ7n45YCe6tCY_jb-ygvI", authDomain: "sonicboom-shop.firebaseapp.com", projectId: "sonicboom-shop", storageBucket: "sonicboom-shop.firebasestorage.app", messagingSenderId: "976804831944", appId: "1:976804831944:web:6ede6a95196478bd49bbfd", measurementId: "G-3FEKWL0QXZ" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            const navLogin = document.getElementById('nav-login');
+            const navUser = document.getElementById('nav-user');
+            const navLogout = document.getElementById('nav-logout');
+            const userDisplay = document.getElementById('user-display');
+            const navbar = document.querySelector('.navbar');
+            const mobileMemberDisplay = document.getElementById('mobile-member-display');
+
+            if (user) {
+                navLogin.style.display = 'none';
+                navUser.style.display = 'block';
+                navLogout.style.display = 'block';
+                const memberName = user.displayName || user.email.split('@')[0];
+                userDisplay.innerHTML = `<i class="fa-solid fa-user-check"></i> 會員 ${memberName}`;
+                if (mobileMemberDisplay) {
+                    mobileMemberDisplay.innerHTML = `<i class="fa-solid fa-user-check" style="color: #C5A880;"></i> 會員:${memberName}`;
+                }
+                if (navbar) {
+                    navbar.classList.add('logged-in');
+                }
+            } else {
+                navLogin.style.display = 'block';
+                navUser.style.display = 'none';
+                navLogout.style.display = 'none';
+                if (navbar) {
+                    navbar.classList.remove('logged-in');
+                }
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', (e) => {
+            e.preventDefault();
+            if(confirm("確定要登出嗎？")) { localStorage.removeItem('dejeng3c_cart'); signOut(auth).then(() => { window.location.reload(); }); }
+        });
+    </script>
+
+    <script>
+        const navbarToggle = document.getElementById('navbarToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        navbarToggle.addEventListener('click', () => { navbarMenu.classList.toggle('active'); });
+
+        function addToCart(itemId) {
+            let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
+            let defSugar = itemId.startsWith('tea') ? '256GB' : '--';
+            let defIce = itemId.startsWith('tea') ? '鈦灰色' : '--';
+            let alertMsg = itemId.startsWith('tea') ? '(預設規格 256GB、鈦灰色)' : '';
+
+            // Find product name in DOM
+            let pName = "";
+            const cards = document.querySelectorAll('.rank-card');
+            for (let card of cards) {
+                const btn = card.querySelector('.btn-cart');
+                if (btn) {
+                    const match = btn.getAttribute('onclick').match(/'([^']+)'/);
+                    if (match && match[1] === itemId) {
+                        const nameNode = card.querySelector('.rank-name');
+                        if (nameNode) {
+                            pName = nameNode.innerText.trim();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Verify stock
+            const inventory = syncInventory();
+            const stock = (pName && inventory[pName] !== undefined) ? inventory[pName] : 100;
+            const existingIndex = cart.findIndex(item => item.id === itemId && item.sugar === defSugar && item.ice === defIce);
+            let currentQtyInCart = existingIndex > -1 ? cart[existingIndex].qty : 0;
+            
+            if (currentQtyInCart + 1 > stock) {
+                alert(`抱歉，【${pName || itemId}】已無足夠庫存！目前庫存剩餘 ${stock} 件，您的購物車中已有 ${currentQtyInCart} 件。`);
+                return;
+            }
+
+            if (existingIndex > -1) { cart[existingIndex].qty += 1; } 
+            else { cart.push({ id: itemId, qty: 1, sugar: defSugar, ice: defIce }); }
+            
+            localStorage.setItem('dejeng3c_cart', JSON.stringify(cart));
+            updateCartBadge();
+            alert(`商品已加入購物車！${alertMsg}`);
+            window.location.href = "cart.html";
+        }
+        
+        function updateCartBadge() {
+            let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
+            let totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            let badge = document.getElementById('cart-badge');
+            if(badge) {
+                if(totalQty > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.innerText = totalQty;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            let logoBadge = document.getElementById('logo-cart-badge');
+            if(logoBadge) {
+                if(totalQty > 0) {
+                    logoBadge.style.display = 'inline-block';
+                    logoBadge.innerText = totalQty;
+                } else {
+                    logoBadge.style.display = 'none';
+                }
+            }
+        }
+        
+        function syncInventory() {
+            let baseInventory = JSON.parse(localStorage.getItem('dejeng3c_base_inventory')) || {};
+            let baseInvUpdated = false;
+            
+            const allProducts = [
+                "iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", "iPad Pro M4", "Google Pixel 8 Pro", "ASUS ROG Phone 8 Pro", 
+                "Xiaomi 14 Ultra", "Sony Xperia 1 VI", "iPad Air 6", "Samsung Galaxy Tab S9", "iPhone 15", 
+                "Google Pixel 8a", "Xiaomi Redmi Note 13 Pro", "ASUS Zenfone 11 Ultra", "OPPO Reno11 Pro", "Sony Xperia 10 VI", 
+                "Samsung Galaxy Fold 5", "iPhone 15 Plus", "iPad 10th Gen", "Logitech MX Master 3S", "Keychron K2 機械鍵盤", 
+                "MacBook Pro M3", "ASUS RT-AX88U Pro 路由器", "WD Black SN850X 2TB SSD", "ROG Swift PG32UCDM 螢幕", "Sony WH-1000XM5 耳機", 
+                "Apple Watch Series 9", "Garmin Venu 3", "AirPods Pro 2", "Google Nest Hub 2", "Dyson Purifier Cool", 
+                "Philips Hue 智慧燈泡", "Nintendo Switch OLED", "DJI Mini 4 Pro 空拍機", "GoPro HERO12 Black", "HomePod 智慧音箱", 
+                "Xiaomi 智慧攝影機 C400", "Dyson V15 Detect"
+            ];
+            
+            allProducts.forEach(name => {
+                if (baseInventory[name] === undefined) {
+                    baseInventory[name] = Math.floor(Math.random() * 101) + 20; // 隨機庫存 20-120
+                    baseInvUpdated = true;
+                }
+            });
+            
+            if (baseInvUpdated) {
+                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
+            }
+            
+            const orders = JSON.parse(localStorage.getItem('dejeng3c_orders')) || [];
+            const computedInventory = {};
+            for (let name in baseInventory) {
+                computedInventory[name] = baseInventory[name];
+            }
+            
+            orders.forEach(order => {
+                if (order.items && Array.isArray(order.items)) {
+                    order.items.forEach(itemStr => {
+                        const match = itemStr.match(/(.*?)(?:\s*\(.*?\))?\s*x(\d+)/);
+                        if (match) {
+                            const pName = match[1].trim();
+                            const pQty = parseInt(match[2]);
+                            if (computedInventory[pName] !== undefined) {
+                                computedInventory[pName] -= pQty;
+                            } else {
+                                baseInventory[pName] = Math.floor(Math.random() * 101) + 20;
+                                baseInvUpdated = true;
+                                computedInventory[pName] = baseInventory[pName] - pQty;
+                            }
+                        }
+                    });
+                }
+            });
+            
+            if (baseInvUpdated) {
+                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
+            }
+            
+            localStorage.setItem('dejeng3c_computed_inventory', JSON.stringify(computedInventory));
+            return computedInventory;
+        }
+
+        function updateProductStatus() {
+            const inventory = syncInventory();
+            const statusSettings = JSON.parse(localStorage.getItem('dejeng3c_product_settings')) || {};
+            
+            document.querySelectorAll('.rank-card').forEach(card => {
+                const nameNode = card.querySelector('.rank-name');
+                if(!nameNode) return;
+                const pName = nameNode.innerText.trim();
+                
+                let isSoldOut = inventory[pName] !== undefined && inventory[pName] <= 0;
+                let isDelisted = statusSettings[pName] && statusSettings[pName].status === 'delisted';
+                
+                if(isDelisted || isSoldOut) {
+                    const btn = card.querySelector('.btn-cart');
+                    if(btn) {
+                        btn.disabled = true;
+                        btn.style.background = '#888';
+                        btn.style.cursor = 'not-allowed';
+                        btn.style.boxShadow = 'none';
+                        btn.innerHTML = isDelisted ? '<i class="fa-solid fa-ban"></i> 已下架' : '<i class="fa-solid fa-ban"></i> 已完售';
+                    }
+                    
+                    const img = card.querySelector('.rank-img');
+                    if(img) {
+                        img.style.filter = 'grayscale(100%) opacity(0.6)';
+                    }
+                }
+
+                // Render stock badge in leaderboard
+                let stock = inventory[pName] !== undefined ? inventory[pName] : 100;
+                let stockEl = card.querySelector('.rank-stock');
+                if (!stockEl) {
+                    stockEl = document.createElement('div');
+                    stockEl.className = 'rank-stock';
+                    stockEl.style.fontSize = '0.8rem';
+                    stockEl.style.fontWeight = '600';
+                    stockEl.style.marginTop = '8px';
+                    stockEl.style.padding = '4px 10px';
+                    stockEl.style.borderRadius = '12px';
+                    stockEl.style.display = 'inline-flex';
+                    stockEl.style.alignItems = 'center';
+                    stockEl.style.gap = '5px';
+                    stockEl.style.width = 'fit-content';
+                    
+                    const priceEl = card.querySelector('.rank-price');
+                    if (priceEl) {
+                        priceEl.parentNode.insertBefore(stockEl, priceEl.nextSibling);
+                    } else {
+                        card.querySelector('.rank-info').appendChild(stockEl);
+                    }
+                }
+                
+                if (isDelisted) {
+                    stockEl.style.color = '#7f8c8d';
+                    stockEl.style.backgroundColor = '#f0f3f4';
+                    stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 庫存: --`;
+                } else if (stock <= 0) {
+                    stockEl.style.color = '#e74c3c';
+                    stockEl.style.backgroundColor = '#fdedec';
+                    stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 庫存剩下: 0`;
+                } else if (stock <= 10) {
+                    stockEl.style.color = '#e67e22';
+                    stockEl.style.backgroundColor = '#fdf2e9';
+                    stockEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 僅剩: ${stock}`;
+                } else {
+                    stockEl.style.color = '#27ae60';
+                    stockEl.style.backgroundColor = '#e8f8f5';
+                    stockEl.innerHTML = `<i class="fa-solid fa-box-open"></i> 庫存剩下: ${stock}`;
+                }
+
+                // 促銷特價顯示邏輯
+                const priceEl = card.querySelector('.rank-price');
+                if (priceEl) {
+                    if (!priceEl.dataset.originalPrice) {
+                        const origText = priceEl.innerText.trim();
+                        const numMatch = origText.match(/\d+/);
+                        if (numMatch) {
+                            priceEl.dataset.originalPrice = numMatch[0];
+                        }
+                    }
+                    const originalPrice = parseInt(priceEl.dataset.originalPrice, 10);
+                    const promoPrice = statusSettings[pName]?.promoPrice;
+                    
+                    let saleBadge = card.querySelector('.sale-badge');
+                    if (promoPrice && promoPrice < originalPrice) {
+                        priceEl.innerHTML = `<span style="text-decoration: line-through; color: #95a5a6; font-size: 0.95rem; margin-right: 8px;">NT$ ${originalPrice}</span><span style="color: #e74c3c; font-weight: bold; font-size: 1.4rem;">NT$ ${promoPrice}</span>`;
+                        
+                        if (!saleBadge && !isDelisted && !isSoldOut) {
+                            saleBadge = document.createElement('div');
+                            saleBadge.className = 'sale-badge';
+                            saleBadge.style = 'position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; z-index: 5; box-shadow: 0 4px 8px rgba(255, 65, 108, 0.4); border: 1px solid rgba(255,255,255,0.2); pointer-events: none; animation: pulse-sale 2s infinite;';
+                            saleBadge.innerHTML = `<i class="fa-solid fa-fire"></i> SALE`;
+                            card.style.position = 'relative';
+                            card.appendChild(saleBadge);
+                        }
+                    } else {
+                        priceEl.innerHTML = `NT$ ${originalPrice}`;
+                        if (saleBadge) saleBadge.remove();
+                    }
+                    
+                    if ((isDelisted || isSoldOut) && saleBadge) {
+                        saleBadge.remove();
+                    }
+                }
+            });
+        }
+        
+        updateCartBadge();
+        updateProductStatus();
+
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -20px 0px' };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, observerOptions);
+
+        document.querySelectorAll('.rank-card').forEach((card, index) => { 
+            setTimeout(() => { observer.observe(card); }, index * 150); 
+        });
+    </script>
+</body>
+</html>
