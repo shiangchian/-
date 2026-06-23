@@ -1,693 +1,632 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>得正 3C - 智慧手機 x 電腦週邊 x 智慧家居</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+    <title>Digital Autobiography - Genesis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: radial-gradient(circle at 10% 20%, rgba(28, 43, 90, 0.05) 0%, rgba(244, 246, 248, 1) 90.1%); min-height: 100vh; overflow-x: hidden; padding-top: 60px; }
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            letter-spacing: 0.06em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
 
-        /* Navbar Styles */
-        .navbar { background: #1C2B5A; padding: 10px 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; border-bottom: 2px solid #C5A880; }
-        .navbar-container { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
-        .navbar-brand-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            gap: 8px;
-            transition: all 0.3s ease;
+        .bar-container {
+            position: absolute;
+            background-color: #333333;
+            border-radius: 6px;
+            z-index: 10;
+            opacity: 1;
         }
-        .navbar-brand-link:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.1);
+
+        #bottom-bar {
+            bottom: 5%;
+            left: 5%;
+            width: 90%;
+            height: 6px;
         }
-        .navbar-brand-logo-img {
-            height: 38px;
-            width: 38px;
+
+        .bar-fill {
+            position: absolute;
+            background-color: #777777;
+            border-radius: 6px;
+            transition: width 0.1s linear;
+        }
+
+        #bottom-bar .bar-fill {
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+        }
+
+        .bar-text {
+            position: absolute;
+            font-size: 1rem;
+            color: #cc4444;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #bottom-bar .bar-text {
+            right: 0;
+            bottom: -24px;
+        }
+
+        #start-wrapper {
+            display: none;
+            position: relative;
+            width: 100px;
+            height: 100px;
+            z-index: 15;
+            opacity: 0;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .ripple {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid #cc4444;
             border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        #start-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1rem;
+            letter-spacing: 0.2em;
+            color: #cc4444;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        #hold-label {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: #888888;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.2em;
+            z-index: 10;
+            opacity: 0;
+            display: none;
+        }
+
+        .progress-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .progress-ring__circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-linecap: round;
+        }
+
+        /* Name & Date styles */
+        .sketch-text {
+            position: absolute;
+            opacity: 0;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.1em;
+            z-index: 5;
+            text-align: center;
+        }
+
+        #text-name {
+            top: 40%;
+            font-size: 1.5rem;
+        }
+
+        #text-date {
+            top: 60%;
+            font-size: 1.2rem;
+            color: #cc4444;
+        }
+
+        /* Scribble SVG */
+        #scribble-svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 200%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #scribble-path {
+            fill: none;
+            stroke: #cc4444;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Final scene — photo container */
+        #photo-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            height: 60vh;
+            z-index: 4;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .carousel-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
-        .navbar-brand-text {
-            font-weight: bold;
-            color: white;
-            font-size: 1.15rem;
-            white-space: nowrap;
+
+        #enter-btn {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid #cc4444;
+            color: #cc4444;
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            opacity: 0;
+            display: none;
+            z-index: 20;
+            transition: background 0.3s, color 0.3s;
         }
-        .navbar-left-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+
+        #enter-btn:hover {
+            background: #cc4444;
+            color: #0a0a0a;
         }
-        .navbar-logo {
+
+        /* ══ Scene 0 : Gravity Text ══ */
+        #gravity-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.05rem;
-            font-weight: bold;
-            color: white !important;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            text-decoration: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            position: relative;
+            background: #0a0a0a;
+            overflow: hidden;
         }
-        .navbar-logo:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.2);
-            color: #C5A880 !important;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-        #logo-cart-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #e74c3c;
-            color: white !important;
-            border-radius: 50%;
-            min-width: 18px;
-            height: 18px;
-            line-height: 15px;
+
+        #gravity-verse {
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            font-size: clamp(13px, 1.5vw, 17px);
+            line-height: 2.6;
+            letter-spacing: 1.8px;
+            word-spacing: 0.2em;
             text-align: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border: 1.5px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            padding: 0 2px;
-            box-sizing: border-box;
-        }
-        .navbar-search-container { flex-grow: 1; display: flex; justify-content: center; }
-        .navbar-search { padding: 8px 15px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 0.9rem; width: 100%; max-width: 400px; transition: all 0.3s ease; background-color: rgba(255, 255, 255, 0.1); color: white; }
-        .navbar-search::placeholder { color: rgba(255, 255, 255, 0.5); }
-        .navbar-search:focus { outline: none; border-color: #C5A880; box-shadow: 0 0 0 2px rgba(197, 168, 128, 0.25); background-color: white; color: #1C2B5A; }
-        .navbar-menu { display: flex; list-style: none; gap: 15px; align-items: center; margin: 0; padding: 0; }
-        .navbar-menu li { position: relative; }
-        .navbar-menu a { text-decoration: none; color: rgba(255, 255, 255, 0.85); font-weight: 500; transition: color 0.3s ease; font-size: 0.95rem; }
-        .navbar-menu a:hover { color: #C5A880; }
-        .navbar-toggle { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* 菜單區塊樣式 */
-        .menu-section { background: transparent; padding: 3rem 1rem 4rem; text-align: center; }
-        .menu-title { color: #1C2B5A; font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 1rem; opacity: 0; animation: fadeInUp 1s ease-out forwards; border-bottom: 3px solid #C5A880; display: inline-block; padding-bottom: 10px; }
-        .menu-subtitle { color: #505965; margin-bottom: 3rem; font-size: 1.1rem; }
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .menu-item { background: #ffffff; border-radius: 15px; padding: 1.5rem; text-align: center; color: #333; opacity: 0; transform: translateY(50px); transition: all 0.6s ease, box-shadow 0.3s ease, transform 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; border: 1px solid rgba(0, 0, 0, 0.03); }
-        .menu-item.visible { opacity: 1; transform: translateY(0); }
-        .menu-item:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); border-color: rgba(28, 43, 90, 0.1); }
-        .menu-item-image { width: 150px; height: 150px; border-radius: 15px; margin: 0 auto 1.5rem; overflow: hidden; }
-        .menu-item-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        .menu-item:hover .menu-item-image img { transform: scale(1.1); }
-        .menu-item-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; color: #1C2B5A; }
-        .menu-item-price { font-size: 1.05rem; font-weight: 700; color: #C5A880; margin-bottom: 1rem; }
-        .menu-item-actions { display: flex; gap: 0.5rem; margin-top: auto; justify-content: center; width: 100%; }
-        .menu-button { padding: 0.75rem 1rem; font-size: 0.95rem; border-radius: 25px; flex: 1; text-align: center; transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent; font-weight: bold; }
-        .menu-button.buy { background-color: #1C2B5A; color: white; }
-        .menu-button.buy:hover { background-color: #2E4A7D; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(28, 43, 90, 0.2); }
-        .menu-button.learn-more { background-color: white; color: #1C2B5A; border-color: #1C2B5A; text-decoration: none; }
-        .menu-button.learn-more:hover { background-color: rgba(28, 43, 90, 0.05); transform: translateY(-2px); }
-
-        /* Footer Styles */
-        .footer { background: #1C2B5A; padding: 4rem 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; position: relative; overflow: hidden; border-top: 2px solid #C5A880; }
-        .footer-section { display: flex; flex-direction: column; gap: 1.2rem; min-width: 0; }
-        .footer-section h3 { color: white; font-size: 1.3rem; font-weight: 600; position: relative; padding-bottom: 0.8rem; margin-bottom: 0.5rem; }
-        .footer-section h3::after { content: ''; position: absolute; bottom: 0; left: 0; width: 40px; height: 3px; background: #C5A880; border-radius: 2px; }
-        .footer-section p, .footer-section ul li { color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; line-height: 1.6; margin: 0; }
-        .footer-section ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.8rem; }
-        .footer-section ul li { display: flex; align-items: center; transition: transform 0.3s ease; white-space: nowrap; }
-        .footer-section ul li a { text-decoration: none; color: inherit; width: 100%; display: inline-block; }
-        .footer-section ul li:hover { transform: translateX(5px); color: #C5A880; }
-        .social-links { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 0.5rem; }
-        .social-links a { text-decoration: none; color: rgba(255, 255, 255, 0.8); padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; transition: all 0.3s ease; background: rgba(255, 255, 255, 0.08); display: inline-flex; align-items: center; white-space: nowrap; }
-        .social-links a:hover { background: #C5A880; color: white; transform: translateY(-2px); }
-        .social-logo { width: 20px; height: 20px; margin-right: 8px; }
-        
-        .mobile-member-display {
-            display: none;
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            white-space: nowrap;
-            align-items: center;
-            gap: 5px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            height: 38px;
-        }
-        .mobile-member-display:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            color: #C5A880;
+            color: #c8c8c8;
+            max-width: 640px;
+            padding: 0 32px;
+            position: relative;
+            z-index: 2;
         }
 
-        @media (max-width: 768px) {
-            .navbar-menu { display: none; flex-direction: column; background: #1C2B5A; position: absolute; top: 100%; left: 0; right: 0; width: 100%; padding: 10px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-            .navbar-menu.active { display: flex; } .navbar-toggle { display: block; }
-            .footer { padding: 3rem 1.5rem; grid-template-columns: 1fr; text-align: center; gap: 3rem; }
-            .footer-section h3::after { left: 50%; transform: translateX(-50%); } .social-links { justify-content: center; }
-            
-            .navbar.logged-in .navbar-search-container {
-                display: none !important;
-            }
-            .navbar.logged-in .mobile-member-display {
-                display: flex !important;
-            }
+        #gravity-verse .gch {
+            display: inline-block;
+            opacity: 0;
         }
-        @media (max-width: 480px) {
-            .navbar-brand-text { display: none; }
+
+        .g-faller {
+            position: absolute;
+            font-family: 'Georgia', serif;
+            font-style: italic;
+            color: #c8c8c8;
+            pointer-events: none;
+            transform-origin: top center;
+            will-change: transform, opacity;
+            z-index: 3;
+        }
+
+        #transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #transition-overlay canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
     </style>
 </head>
+
 <body>
 
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-left-container">
-                <a href="index.html" class="navbar-brand-link">
-                    <img src="image/logo.jpeg" alt="得正 3C" class="navbar-brand-logo-img">
-                    <span class="navbar-brand-text">得正 3C</span>
-                </a>
-                <a href="cart.html" class="navbar-logo">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span id="logo-cart-badge" style="display: none;">0</span>
-                </a>
-            </div>
-            <div class="navbar-search-container">
-                <input type="search" id="searchInput" class="navbar-search" placeholder="搜尋手機、筆電、智慧配件...">
-            </div>
-            <a href="profile.html" id="mobile-member-display" class="mobile-member-display"></a>
-            <button class="navbar-toggle" id="navbarToggle">☰</button>
-            <ul class="navbar-menu" id="navbarMenu">
-                <li><a href="index.html"><i class="fa-solid fa-house"></i> 首頁</a></li>
-                <li><a href="#drinks"><i class="fa-solid fa-mobile-screen-button"></i> 手機平板</a></li>
-                <li><a href="#donuts"><i class="fa-solid fa-keyboard"></i> 電腦週邊</a></li>
-                <li><a href="#fruits"><i class="fa-solid fa-house-laptop"></i> 智慧家居</a></li>
-                <li><a href="leaderboard.html"><i class="fa-solid fa-crown"></i> 排行榜</a></li>
-                <li><a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> 購物車 <span id="cart-badge" style="background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.75rem; vertical-align: top; display: none;">0</span></a></li>
-                
-                <li><a href="database_demo.html" style="color: #e74c3c; font-weight: bold;"><i class="fa-solid fa-database"></i> 資料庫</a></li>
-
-                <li id="nav-login"><a href="login.html"><i class="fa-solid fa-user"></i> 登入/註冊</a></li>
-                <li id="nav-user" style="display:none;"><a href="profile.html" id="user-display" style="color:#C5A880; font-weight:bold;"></a></li>
-                <li id="nav-logout" style="display:none;"><a href="#" id="btn-logout" style="color:#e74c3c;">登出</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <div id="no-result-msg" style="display: none; color: #e74c3c; font-size: 1.2rem; font-weight: bold; text-align: center; margin-top: 2rem; padding-top: 20px;">
-        沒有找到符合的商品，請嘗試其他關鍵字。
+    <!-- ══ Scene 0 : Gravity Text ══ -->
+    <div id="gravity-scene">
+        <div id="gravity-verse"></div>
     </div>
 
-    <section id="drinks" class="menu-section">
-        <h2 class="menu-title">📱 智慧手機與平板</h2>
-        <p class="menu-subtitle">Smart Phones & Tablets</p>
-        <div class="menu-grid">
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60" alt="iPhone 15 Pro Max"></div><div class="menu-item-name">iPhone 15 Pro Max</div><div class="menu-item-price">NT$ 44,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea01')">加入購物車</button><a href="product.html?id=tea01" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&auto=format&fit=crop&q=60" alt="Samsung Galaxy S24 Ultra"></div><div class="menu-item-name">Samsung Galaxy S24 Ultra</div><div class="menu-item-price">NT$ 43,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea02')">加入購物車</button><a href="product.html?id=tea02" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60" alt="iPad Pro M4"></div><div class="menu-item-name">iPad Pro M4</div><div class="menu-item-price">NT$ 34,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea03')">加入購物車</button><a href="product.html?id=tea03" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60" alt="Google Pixel 8 Pro"></div><div class="menu-item-name">Google Pixel 8 Pro</div><div class="menu-item-price">NT$ 33,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea04')">加入購物車</button><a href="product.html?id=tea04" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="ASUS ROG Phone 8 Pro"></div><div class="menu-item-name">ASUS ROG Phone 8 Pro</div><div class="menu-item-price">NT$ 38,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea05')">加入購物車</button><a href="product.html?id=tea05" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="Xiaomi 14 Ultra"></div><div class="menu-item-name">Xiaomi 14 Ultra</div><div class="menu-item-price">NT$ 34,999</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea06')">加入購物車</button><a href="product.html?id=tea06" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="Sony Xperia 1 VI"></div><div class="menu-item-name">Sony Xperia 1 VI</div><div class="menu-item-price">NT$ 39,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea07')">加入購物車</button><a href="product.html?id=tea07" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1589739900243-4b52cd9b104e?w=500&auto=format&fit=crop&q=60" alt="iPad Air 6"></div><div class="menu-item-name">iPad Air 6</div><div class="menu-item-price">NT$ 19,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea08')">加入購物車</button><a href="product.html?id=tea08" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=500&auto=format&fit=crop&q=60" alt="Samsung Galaxy Tab S9"></div><div class="menu-item-name">Samsung Galaxy Tab S9</div><div class="menu-item-price">NT$ 23,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea09')">加入購物車</button><a href="product.html?id=tea09" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60" alt="iPhone 15"></div><div class="menu-item-name">iPhone 15</div><div class="menu-item-price">NT$ 29,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea10')">加入購物車</button><a href="product.html?id=tea10" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60" alt="Google Pixel 8a"></div><div class="menu-item-name">Google Pixel 8a</div><div class="menu-item-price">NT$ 16,490</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea11')">加入購物車</button><a href="product.html?id=tea11" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60" alt="Xiaomi Redmi Note 13 Pro"></div><div class="menu-item-name">Xiaomi Redmi Note 13 Pro</div><div class="menu-item-price">NT$ 9,999</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea12')">加入購物車</button><a href="product.html?id=tea12" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="ASUS Zenfone 11 Ultra"></div><div class="menu-item-name">ASUS Zenfone 11 Ultra</div><div class="menu-item-price">NT$ 29,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea13')">加入購物車</button><a href="product.html?id=tea13" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500&auto=format&fit=crop&q=60" alt="OPPO Reno11 Pro"></div><div class="menu-item-name">OPPO Reno11 Pro</div><div class="menu-item-price">NT$ 16,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea27')">加入購物車</button><a href="product.html?id=tea27" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&auto=format&fit=crop&q=60" alt="Sony Xperia 10 VI"></div><div class="menu-item-name">Sony Xperia 10 VI</div><div class="menu-item-price">NT$ 13,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea28')">加入購物車</button><a href="product.html?id=tea28" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500&auto=format&fit=crop&q=60" alt="Samsung Galaxy Fold 5"></div><div class="menu-item-name">Samsung Galaxy Fold 5</div><div class="menu-item-price">NT$ 56,888</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea31')">加入購物車</button><a href="product.html?id=tea31" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&auto=format&fit=crop&q=60" alt="iPhone 15 Plus"></div><div class="menu-item-name">iPhone 15 Plus</div><div class="menu-item-price">NT$ 32,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea32')">加入購物車</button><a href="product.html?id=tea32" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1589739900243-4b52cd9b104e?w=500&auto=format&fit=crop&q=60" alt="iPad 10th Gen"></div><div class="menu-item-name">iPad 10th Gen</div><div class="menu-item-price">NT$ 11,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('tea33')">加入購物車</button><a href="product.html?id=tea33" class="menu-button learn-more">詳細</a></div></div>
-        </div>
-    </section>
+    <div id="bottom-bar" class="bar-container">
+        <div class="bar-fill"></div>
+        <div class="bar-text">0%</div>
+    </div>
 
-    <section id="donuts" class="menu-section" style="background: rgba(28, 43, 90, 0.02);">
-        <h2 class="menu-title" style="border-color: #C5A880;">💻 電腦週邊與配件</h2>
-        <p class="menu-subtitle">Computers & Accessories</p>
-        <div class="menu-grid">
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=500&auto=format&fit=crop&q=60" alt="Logitech MX Master 3S"></div><div class="menu-item-name">Logitech MX Master 3S</div><div class="menu-item-price">NT$ 3,290</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut01')">加入購物車</button><a href="product.html?id=donut01" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=500&auto=format&fit=crop&q=60" alt="Keychron K2 機械鍵盤"></div><div class="menu-item-name">Keychron K2 機械鍵盤</div><div class="menu-item-price">NT$ 2,580</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut02')">加入購物車</button><a href="product.html?id=donut02" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&auto=format&fit=crop&q=60" alt="MacBook Pro M3"></div><div class="menu-item-name">MacBook Pro M3</div><div class="menu-item-price">NT$ 54,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut03')">加入購物車</button><a href="product.html?id=donut03" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=500&auto=format&fit=crop&q=60" alt="ASUS RT-AX88U Pro 路由器"></div><div class="menu-item-name">ASUS RT-AX88U Pro 路由器</div><div class="menu-item-price">NT$ 8,888</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut04')">加入購物車</button><a href="product.html?id=donut04" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=500&auto=format&fit=crop&q=60" alt="WD Black SN850X 2TB SSD"></div><div class="menu-item-name">WD Black SN850X 2TB SSD</div><div class="menu-item-price">NT$ 5,290</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut05')">加入購物車</button><a href="product.html?id=donut05" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=60" alt="ROG Swift PG32UCDM 螢幕"></div><div class="menu-item-name">ROG Swift PG32UCDM 螢幕</div><div class="menu-item-price">NT$ 42,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut06')">加入購物車</button><a href="product.html?id=donut06" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60" alt="Sony WH-1000XM5 耳機"></div><div class="menu-item-name">Sony WH-1000XM5 耳機</div><div class="menu-item-price">NT$ 9,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('donut07')">加入購物車</button><a href="product.html?id=donut07" class="menu-button learn-more">詳細</a></div></div>
-        </div>
-    </section>
+    <div id="start-wrapper">
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <div class="ripple"></div>
+        <svg class="progress-ring" width="100" height="100">
+            <circle class="progress-ring__circle" stroke="#ffffff" stroke-width="2" fill="transparent" r="46" cx="50"
+                cy="50" />
+        </svg>
+        <div id="start-text">START</div>
+    </div>
 
-    <section id="fruits" class="menu-section" style="background: rgba(28, 43, 90, 0.04);">
-        <h2 class="menu-title" style="border-color: #C5A880;">🏠 智慧穿戴與智能家居</h2>
-        <p class="menu-subtitle">Smart Wearables & Smart Home</p>
-        <div class="menu-grid">
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=500&auto=format&fit=crop&q=60" alt="Apple Watch Series 9"></div><div class="menu-item-name">Apple Watch Series 9</div><div class="menu-item-price">NT$ 13,500</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit01')">加入購物車</button><a href="product.html?id=fruit01" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=500&auto=format&fit=crop&q=60" alt="Garmin Venu 3"></div><div class="menu-item-name">Garmin Venu 3</div><div class="menu-item-price">NT$ 14,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit02')">加入購物車</button><a href="product.html?id=fruit02" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1588449668365-d15e397f6787?w=500&auto=format&fit=crop&q=60" alt="AirPods Pro 2"></div><div class="menu-item-name">AirPods Pro 2</div><div class="menu-item-price">NT$ 7,490</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit03')">加入購物車</button><a href="product.html?id=fruit03" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&auto=format&fit=crop&q=60" alt="Google Nest Hub 2"></div><div class="menu-item-name">Google Nest Hub 2</div><div class="menu-item-price">NT$ 3,180</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit04')">加入購物車</button><a href="product.html?id=fruit04" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&auto=format&fit=crop&q=60" alt="Dyson Purifier Cool"></div><div class="menu-item-name">Dyson Purifier Cool</div><div class="menu-item-price">NT$ 18,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit05')">加入購物車</button><a href="product.html?id=fruit05" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1550985616-10810253b84d?w=500&auto=format&fit=crop&q=60" alt="Philips Hue 智慧燈泡"></div><div class="menu-item-name">Philips Hue 智慧燈泡</div><div class="menu-item-price">NT$ 4,990</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit06')">加入購物車</button><a href="product.html?id=fruit06" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=500&auto=format&fit=crop&q=60" alt="Nintendo Switch OLED"></div><div class="menu-item-name">Nintendo Switch OLED</div><div class="menu-item-price">NT$ 10,480</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit07')">加入購物車</button><a href="product.html?id=fruit07" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=500&auto=format&fit=crop&q=60" alt="DJI Mini 4 Pro 空拍機"></div><div class="menu-item-name">DJI Mini 4 Pro 空拍機</div><div class="menu-item-price">NT$ 22,090</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit08')">加入購物車</button><a href="product.html?id=fruit08" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop&q=60" alt="GoPro HERO12 Black"></div><div class="menu-item-name">GoPro HERO12 Black</div><div class="menu-item-price">NT$ 14,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit09')">加入購物車</button><a href="product.html?id=fruit09" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1543512214-318c7553f230?w=500&auto=format&fit=crop&q=60" alt="HomePod 智慧音箱"></div><div class="menu-item-name">HomePod 智慧音箱</div><div class="menu-item-price">NT$ 9,300</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit10')">加入購物車</button><a href="product.html?id=fruit10" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1558002038-1055907df827?w=500&auto=format&fit=crop&q=60" alt="Xiaomi 智慧攝影機 C400"></div><div class="menu-item-name">Xiaomi 智慧攝影機 C400</div><div class="menu-item-price">NT$ 1,095</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit11')">加入購物車</button><a href="product.html?id=fruit11" class="menu-button learn-more">詳細</a></div></div>
-            <div class="menu-item"><div class="menu-item-image"><img src="https://images.unsplash.com/photo-1558317374-067fb5f30001?w=500&auto=format&fit=crop&q=60" alt="Dyson V15 Detect"></div><div class="menu-item-name">Dyson V15 Detect</div><div class="menu-item-price">NT$ 24,900</div><div class="menu-item-actions"><button class="menu-button buy" onclick="addToCart('fruit12')">加入購物車</button><a href="product.html?id=fruit12" class="menu-button learn-more">詳細</a></div></div>
-        </div>
-    </section>
+    <div id="hold-label">Hold</div>
 
-    <footer class="footer">
-        <div class="footer-section">
-            <h3>品牌區塊</h3>
-            <p>得正 3C - 手機平板 x 電腦週邊 x 智慧家居</p>
-            <div class="social-links">
-                <a href="https://instagram.com" target="_blank"><img src="image/Instagram-logo.png" alt="Instagram Logo" class="social-logo"> Instagram</a>
-                <a href="https://line.me" target="_blank"><img src="image/line-logo.png" alt="LINE Logo" class="social-logo"> LINE</a>
-            </div>
-        </div>
-        <div class="footer-section">
-            <h3>BUSINESS 商業區塊</h3>
-            <ul>
-                <li><a href="#drinks">📱 智慧手機與平板</a></li>
-                <li><a href="#donuts">💻 電腦週邊與配件</a></li>
-                <li><a href="#fruits">🏠 智慧穿戴與智能家居</a></li>
-                <li><a href="leaderboard.html">⭐ 熱銷排行</a></li>
-                <li><a href="database_demo.html" style="color:#C5A880; font-weight:bold;">📦 資料庫展示頁</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h3>CONTACT 聯繫區塊</h3>
-            <p>📧 電子郵件：a113280055@gm.usc.edu.tw</p>
-            <p>📞 電話：0952702813</p>
-            <p>🏪 地址：台北市大安區忠孝東路四段123號</p>
-        </div>
-        <div class="footer-section">
-            <h3>版權資訊</h3>
-            <p>© 2026 得正 3C. All rights reserved.</p>
-            <p>設計製作者：薛翔謙</p>
-        </div>
-    </footer>
+    <div id="photo-container">
+        <img src="image/IMG_1514.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_2334.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_4131.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_4221.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_4732.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_4832.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_5013.JPG" class="carousel-image" alt="Memory">
+        <img src="image/IMG_5120.JPG" class="carousel-image" alt="Memory">
+    </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        const firebaseConfig = { apiKey: "AIzaSyC-LcCfcPYCYAQZ7n45YCe6tCY_jb-ygvI", authDomain: "sonicboom-shop.firebaseapp.com", projectId: "sonicboom-shop", storageBucket: "sonicboom-shop.firebasestorage.app", messagingSenderId: "976804831944", appId: "1:976804831944:web:6ede6a95196478bd49bbfd", measurementId: "G-3FEKWL0QXZ" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    <div id="text-name" class="sketch-text">SHIUE SHIANG CHIAN</div>
 
-        onAuthStateChanged(auth, (user) => {
-            const navLogin = document.getElementById('nav-login');
-            const navUser = document.getElementById('nav-user');
-            const navLogout = document.getElementById('nav-logout');
-            const userDisplay = document.getElementById('user-display');
-            const navbar = document.querySelector('.navbar');
-            const mobileMemberDisplay = document.getElementById('mobile-member-display');
+    <div id="text-date" class="sketch-text">
+        2006.3.14.
+        <svg id="scribble-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path id="scribble-path" d="M -5,15 Q 10,-5 15,25 T 35,5 T 45,28 T 65,2 T 75,25 T 95,5 T 105,20"></path>
+        </svg>
+    </div>
 
-            if (user) {
-                navLogin.style.display = 'none';
-                navUser.style.display = 'block';
-                navLogout.style.display = 'block';
-                const memberName = user.displayName || user.email.split('@')[0];
-                userDisplay.innerHTML = `<i class="fa-solid fa-user-check"></i> 會員 ${memberName}`;
-                if (mobileMemberDisplay) {
-                    mobileMemberDisplay.innerHTML = `<i class="fa-solid fa-user-check" style="color: #C5A880;"></i> 會員:${memberName}`;
-                }
-                if (navbar) {
-                    navbar.classList.add('logged-in');
-                }
-            } else {
-                navLogin.style.display = 'block';
-                navUser.style.display = 'none';
-                navLogout.style.display = 'none';
-                if (navbar) {
-                    navbar.classList.remove('logged-in');
-                }
-            }
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', (e) => {
-            e.preventDefault();
-            if(confirm("確定要登出嗎？")) { localStorage.removeItem('dejeng3c_cart'); signOut(auth).then(() => { window.location.reload(); }); }
-        });
-    </script>
+    <button id="enter-btn">ENTER RADIO</button>
+    <div id="transition-overlay"><canvas id="cloud-gl"></canvas></div>
 
     <script>
-        function addToCart(itemId) {
-            let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
-            let defSugar = itemId.startsWith('tea') ? '256GB' : '--';
-            let defIce = itemId.startsWith('tea') ? '鈦灰色' : '--';
-            let alertMsg = itemId.startsWith('tea') ? '(預設256GB、鈦灰色)' : '';
+        /* ══ Scene 0 : Typewriter + Gravity Fall ══ */
+        (function () {
+            const VERSE = "So do not fear, for I am with you;\ndo not be dismayed, for I am your God.\nI will strengthen you and help you;\nI will uphold you with my righteous right hand.";
 
-            // Find product name in DOM
-            let pName = "";
-            const items = document.querySelectorAll('.menu-item');
-            for (let item of items) {
-                const btn = item.querySelector('.buy');
-                if (btn) {
-                    const match = btn.getAttribute('onclick').match(/'([^']+)'/);
-                    if (match && match[1] === itemId) {
-                        const nameNode = item.querySelector('.menu-item-name');
-                        if (nameNode) {
-                            pName = nameNode.innerText.trim();
-                            break;
-                        }
-                    }
-                }
-            }
+            const scene     = document.getElementById('gravity-scene');
+            const container = document.getElementById('gravity-verse');
 
-            // Verify stock
-            const inventory = syncInventory();
-            const stock = (pName && inventory[pName] !== undefined) ? inventory[pName] : 100;
-            const existingIndex = cart.findIndex(item => item.id === itemId && item.sugar === defSugar && item.ice === defIce);
-            let currentQtyInCart = existingIndex > -1 ? cart[existingIndex].qty : 0;
-            
-            if (currentQtyInCart + 1 > stock) {
-                alert(`抱歉，【${pName || itemId}】已無足夠庫存！目前庫存剩餘 ${stock} 件，您的購物車中已有 ${currentQtyInCart} 件。`);
-                return;
-            }
-
-            if (existingIndex > -1) { cart[existingIndex].qty += 1; } 
-            else { cart.push({ id: itemId, qty: 1, sugar: defSugar, ice: defIce }); }
-            
-            localStorage.setItem('dejeng3c_cart', JSON.stringify(cart));
-            updateCartBadge();
-            alert(`商品已加入購物車！${alertMsg}`);
-            window.location.href = "cart.html";
-        }
-
-        function updateCartBadge() {
-            let cart = JSON.parse(localStorage.getItem('dejeng3c_cart')) || [];
-            let totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            let badge = document.getElementById('cart-badge');
-            if(badge) {
-                if(totalQty > 0) {
-                    badge.style.display = 'inline-block';
-                    badge.innerText = totalQty;
+            // Build character spans
+            const charSpans = [];
+            VERSE.split('').forEach(ch => {
+                if (ch === '\n') { container.appendChild(document.createElement('br')); return; }
+                const sp = document.createElement('span');
+                sp.className   = 'gch';
+                if (ch === ' ') {
+                    sp.innerHTML = '&nbsp;';
                 } else {
-                    badge.style.display = 'none';
+                    sp.textContent = ch;
                 }
-            }
-            let logoBadge = document.getElementById('logo-cart-badge');
-            if(logoBadge) {
-                if(totalQty > 0) {
-                    logoBadge.style.display = 'inline-block';
-                    logoBadge.innerText = totalQty;
-                } else {
-                    logoBadge.style.display = 'none';
-                }
-            }
-        }
-        
-        function syncInventory() {
-            let baseInventory = JSON.parse(localStorage.getItem('dejeng3c_base_inventory')) || {};
-            let baseInvUpdated = false;
-            
-            const allProducts = [
-                "iPhone 15 Pro Max", "Samsung Galaxy S24 Ultra", "iPad Pro M4", "Google Pixel 8 Pro", "ASUS ROG Phone 8 Pro", 
-                "Xiaomi 14 Ultra", "Sony Xperia 1 VI", "iPad Air 6", "Samsung Galaxy Tab S9", "iPhone 15", 
-                "Google Pixel 8a", "Xiaomi Redmi Note 13 Pro", "ASUS Zenfone 11 Ultra", "OPPO Reno11 Pro", "Sony Xperia 10 VI", 
-                "Samsung Galaxy Fold 5", "iPhone 15 Plus", "iPad 10th Gen", "Logitech MX Master 3S", "Keychron K2 機械鍵盤", 
-                "MacBook Pro M3", "ASUS RT-AX88U Pro 路由器", "WD Black SN850X 2TB SSD", "ROG Swift PG32UCDM 螢幕", "Sony WH-1000XM5 耳機", 
-                "Apple Watch Series 9", "Garmin Venu 3", "AirPods Pro 2", "Google Nest Hub 2", "Dyson Purifier Cool", 
-                "Philips Hue 智慧燈泡", "Nintendo Switch OLED", "DJI Mini 4 Pro 空拍機", "GoPro HERO12 Black", "HomePod 智慧音箱", 
-                "Xiaomi 智慧攝影機 C400", "Dyson V15 Detect"
-            ];
-            
-            allProducts.forEach(name => {
-                if (baseInventory[name] === undefined) {
-                    baseInventory[name] = Math.floor(Math.random() * 101) + 20; // 隨機庫存 20-120
-                    baseInvUpdated = true;
-                }
-            });
-            
-            if (baseInvUpdated) {
-                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
-            }
-            
-            const orders = JSON.parse(localStorage.getItem('dejeng3c_orders')) || [];
-            const computedInventory = {};
-            for (let name in baseInventory) {
-                computedInventory[name] = baseInventory[name];
-            }
-            
-            orders.forEach(order => {
-                if (order.items && Array.isArray(order.items)) {
-                    order.items.forEach(itemStr => {
-                        const match = itemStr.match(/(.*?)(?:\s*\(.*?\))?\s*x(\d+)/);
-                        if (match) {
-                            const pName = match[1].trim();
-                            const pQty = parseInt(match[2]);
-                            if (computedInventory[pName] !== undefined) {
-                                computedInventory[pName] -= pQty;
-                            } else {
-                                baseInventory[pName] = Math.floor(Math.random() * 101) + 20;
-                                baseInvUpdated = true;
-                                computedInventory[pName] = baseInventory[pName] - pQty;
-                            }
-                        }
-                    });
-                }
-            });
-            
-            if (baseInvUpdated) {
-                localStorage.setItem('dejeng3c_base_inventory', JSON.stringify(baseInventory));
-            }
-            
-            localStorage.setItem('dejeng3c_computed_inventory', JSON.stringify(computedInventory));
-            return computedInventory;
-        }
-        
-        function updateProductStatus() {
-            const inventory = syncInventory();
-            const statusSettings = JSON.parse(localStorage.getItem('dejeng3c_product_settings')) || {};
-            
-            document.querySelectorAll('.menu-item').forEach(item => {
-                const btn = item.querySelector('.buy');
-                if(!btn) return;
-                const match = btn.getAttribute('onclick').match(/'([^']+)'/);
-                if(!match) return;
-                
-                const productId = match[1];
-                const nameNode = item.querySelector('.menu-item-name');
-                const pName = nameNode ? nameNode.innerText.trim() : '';
-                
-                let isSoldOut = inventory[pName] !== undefined && inventory[pName] <= 0;
-                let isDelisted = statusSettings[pName] && statusSettings[pName].status === 'delisted';
-                
-                let imageContainer = item.querySelector('.menu-item-image');
-                let existingOverlay = imageContainer.querySelector('.status-overlay');
-                if(existingOverlay) existingOverlay.remove();
-                
-                if(isDelisted) {
-                    let overlay = document.createElement('div');
-                    overlay.className = 'status-overlay';
-                    overlay.style = 'position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); color: white; display:flex; align-items:center; justify-content:center; font-size: 1.5rem; font-weight:bold; z-index:10; border-radius:15px;';
-                    overlay.innerText = '已下架';
-                    imageContainer.style.position = 'relative';
-                    imageContainer.appendChild(overlay);
-                    
-                    btn.disabled = true;
-                    btn.style.background = '#888';
-                    btn.style.cursor = 'not-allowed';
-                    btn.innerText = '已下架';
-                } else if(isSoldOut) {
-                    let overlay = document.createElement('div');
-                    overlay.className = 'status-overlay';
-                    overlay.style = 'position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(231,76,60,0.7); color: white; display:flex; align-items:center; justify-content:center; font-size: 1.5rem; font-weight:bold; z-index:10;';
-                    overlay.innerText = '已完售';
-                    imageContainer.style.position = 'relative';
-                    imageContainer.appendChild(overlay);
-                    
-                    btn.disabled = true;
-                    btn.style.background = '#ccc';
-                    btn.style.cursor = 'not-allowed';
-                    btn.innerText = '已完售';
-                }
-
-                // New remaining stock badge display logic
-                let stock = inventory[pName] !== undefined ? inventory[pName] : 100;
-                let stockEl = item.querySelector('.menu-item-stock');
-                if (!stockEl) {
-                    stockEl = document.createElement('div');
-                    stockEl.className = 'menu-item-stock';
-                    stockEl.style.fontSize = '0.8rem';
-                    stockEl.style.fontWeight = '600';
-                    stockEl.style.marginBottom = '10px';
-                    stockEl.style.padding = '4px 10px';
-                    stockEl.style.borderRadius = '12px';
-                    stockEl.style.display = 'inline-flex';
-                    stockEl.style.alignItems = 'center';
-                    stockEl.style.gap = '5px';
-                    
-                    const priceEl = item.querySelector('.menu-item-price');
-                    if (priceEl) {
-                        priceEl.parentNode.insertBefore(stockEl, priceEl.nextSibling);
-                    } else {
-                        item.appendChild(stockEl);
-                    }
-                }
-                
-                if (isDelisted) {
-                    stockEl.style.color = '#7f8c8d';
-                    stockEl.style.backgroundColor = '#f0f3f4';
-                    stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 庫存: --`;
-                } else if (stock <= 0) {
-                    stockEl.style.color = '#e74c3c';
-                    stockEl.style.backgroundColor = '#fdedec';
-                    stockEl.innerHTML = `<i class="fa-solid fa-box-archive"></i> 庫存剩下: 0`;
-                } else if (stock <= 10) {
-                    stockEl.style.color = '#e67e22';
-                    stockEl.style.backgroundColor = '#fdf2e9';
-                    stockEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> 僅剩: ${stock}`;
-                } else {
-                    stockEl.style.color = '#27ae60';
-                    stockEl.style.backgroundColor = '#e8f8f5';
-                    stockEl.innerHTML = `<i class="fa-solid fa-box-open"></i> 庫存剩下: ${stock}`;
-                }
-
-                // 促銷特價顯示邏輯
-                const priceEl = item.querySelector('.menu-item-price');
-                if (priceEl) {
-                    if (!priceEl.dataset.originalPrice) {
-                        const origText = priceEl.innerText.trim();
-                        const numMatch = origText.match(/\d+/);
-                        if (numMatch) {
-                            priceEl.dataset.originalPrice = numMatch[0];
-                        }
-                    }
-                    const originalPrice = parseInt(priceEl.dataset.originalPrice, 10);
-                    const promoPrice = statusSettings[pName]?.promoPrice;
-                    
-                    let saleBadge = imageContainer.querySelector('.sale-badge');
-                    if (promoPrice && promoPrice < originalPrice) {
-                        priceEl.innerHTML = `<span style="text-decoration: line-through; color: #95a5a6; font-size: 0.9rem; margin-right: 5px;">NT$ ${originalPrice}</span><span style="color: #e74c3c; font-weight: bold; font-size: 1.15rem;">NT$ ${promoPrice}</span>`;
-                        
-                        if (!saleBadge && !isDelisted && !isSoldOut) {
-                            saleBadge = document.createElement('div');
-                            saleBadge.className = 'sale-badge';
-                            saleBadge.style = 'position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #ff416c, #ff4b2b); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; z-index: 5; box-shadow: 0 4px 8px rgba(255, 65, 108, 0.4); border: 1px solid rgba(255,255,255,0.2); pointer-events: none; animation: pulse-sale 2s infinite;';
-                            saleBadge.innerHTML = `<i class="fa-solid fa-fire"></i> SALE`;
-                            imageContainer.style.position = 'relative';
-                            imageContainer.appendChild(saleBadge);
-                        }
-                    } else {
-                        priceEl.innerHTML = `NT$ ${originalPrice}`;
-                        if (saleBadge) saleBadge.remove();
-                    }
-                    
-                    // 如果商品已下架或已完售，應移除 SALE 徽章以免干擾畫面
-                    if ((isDelisted || isSoldOut) && saleBadge) {
-                        saleBadge.remove();
-                    }
-                }
+                container.appendChild(sp);
+                charSpans.push(sp);
             });
 
-            // 將特價商品排列在最上面
-            document.querySelectorAll('.menu-grid').forEach(grid => {
-                const items = Array.from(grid.querySelectorAll('.menu-item'));
-                
-                // 先給每個 item 標記一個初始 index，便於穩定排序
-                items.forEach((item, index) => {
-                    if (item.dataset.originalIndex === undefined) {
-                        item.dataset.originalIndex = index;
+            // Typewriter
+            let ti = 0;
+            function typeNext() {
+                if (ti >= charSpans.length) { setTimeout(startFall, 2800); return; }
+                charSpans[ti].style.opacity = '1';
+                ti++;
+                const ch    = charSpans[ti - 1].textContent;
+                const pause = (ch === ',' || ch === '.' || ch === ';') ? 280 : 0;
+                setTimeout(typeNext, 55 + pause + (Math.random() < 0.06 ? 150 : 0));
+            }
+            setTimeout(typeNext, 900);
+
+            // Gravity fall
+            function startFall() {
+                const sorted = [...charSpans].sort((a, b) => {
+                    const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+                    return (ra.left + ra.width / 2) - (rb.left + rb.width / 2);
+                });
+                sorted.forEach((span, i) => setTimeout(() => fallChar(span), i * 20 + Math.random() * 40));
+                setTimeout(transitionToMain, sorted.length * 20 + 2200);
+            }
+
+            function fallChar(span) {
+                const rect  = span.getBoundingClientRect();
+                const sRect = scene.getBoundingClientRect();
+                const sx    = rect.left - sRect.left + rect.width / 2;
+                const sy    = rect.top  - sRect.top;
+                const size  = parseFloat(getComputedStyle(span).fontSize);
+
+                span.style.opacity = '0';
+
+                const el = document.createElement('div');
+                el.className   = 'g-faller';
+                el.textContent = span.textContent;
+                el.style.cssText = `font-size:${size}px;left:${sx}px;top:${sy}px;opacity:1;`;
+                scene.appendChild(el);
+
+                const tilt    = (Math.random() - .5) * 18;
+                const sway    = (Math.random() - .5) * 34;
+                const dur     = 1100 + Math.random() * 900;
+                const dist    = sRect.height - sy + size * 2;
+                let   start   = null;
+
+                (function step(ts) {
+                    if (!start) start = ts;
+                    const p     = Math.min((ts - start) / dur, 1);
+                    const grav  = p < 0.12 ? 0 : Math.pow((p - 0.12) / 0.88, 1.9);
+                    const alpha = p > 0.7  ? 1 - (p - 0.7) / 0.3 : 1;
+                    el.style.transform = `translate(-50%,0) rotate(${tilt * p}deg)`;
+                    el.style.left      = (sx + sway * Math.sin(p * Math.PI * 0.6)) + 'px';
+                    el.style.top       = (sy + grav * dist) + 'px';
+                    el.style.opacity   = alpha;
+                    if (p < 1) requestAnimationFrame(step); else el.remove();
+                })(performance.now());
+            }
+
+            function transitionToMain() {
+                gsap.to(scene, {
+                    opacity: 0, duration: 1.3, ease: 'power2.in',
+                    onComplete: () => { scene.style.display = 'none'; startMainScene(); }
+                });
+            }
+        })();
+
+        /* ══ Main scene logic ══ */
+        function startMainScene() {
+        const bottomBarFill = document.querySelector('#bottom-bar .bar-fill');
+        const bottomBarText = document.querySelector('#bottom-bar .bar-text');
+        const startWrapper = document.getElementById('start-wrapper');
+        const holdLabel = document.getElementById('hold-label');
+        const textName = document.getElementById('text-name');
+        const textDate = document.getElementById('text-date');
+        const photoContainer = document.getElementById('photo-container');
+        const images = document.querySelectorAll('.carousel-image');
+        const scribblePath = document.getElementById('scribble-path');
+        const circle = document.querySelector('.progress-ring__circle');
+        const ripples = document.querySelectorAll('.ripple');
+        const enterBtn = document.getElementById('enter-btn');
+        const transitionOverlay = document.getElementById('transition-overlay');
+        let heartSound;
+
+        // SVG path length
+        const pathLength = scribblePath.getTotalLength();
+        scribblePath.style.strokeDasharray = pathLength;
+        scribblePath.style.strokeDashoffset = pathLength;
+
+        const circumference = circle.r.baseVal.value * 2 * Math.PI;
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+
+        let loadData = { percent: 0 };
+        let pressTween, rippleTween, isTransitioning = false;
+
+        // --- Scene 1 : Loading bar ---
+        gsap.to(loadData, {
+            percent: 100, duration: 8, ease: "power2.inOut",
+            onUpdate: () => {
+                bottomBarFill.style.width = Math.round(loadData.percent) + "%";
+                bottomBarText.innerHTML = Math.round(loadData.percent) + "%";
+            },
+            onComplete: () => {
+                gsap.to(".bar-container", {
+                    opacity: 0, duration: 1, onComplete: () => {
+                        document.querySelectorAll('.bar-container').forEach(el => el.style.display = 'none');
+                        startWrapper.style.display = 'block';
+                        holdLabel.style.display = 'block';
+                        gsap.to([startWrapper, holdLabel], { opacity: 1, duration: 1 });
                     }
                 });
+            }
+        });
 
-                items.sort((a, b) => {
-                    const nameA = a.querySelector('.menu-item-name')?.innerText.trim() || '';
-                    const nameB = b.querySelector('.menu-item-name')?.innerText.trim() || '';
-                    
-                    const priceElA = a.querySelector('.menu-item-price');
-                    const priceElB = b.querySelector('.menu-item-price');
-                    const origA = priceElA ? (parseInt(priceElA.dataset.originalPrice, 10) || 0) : 0;
-                    const origB = priceElB ? (parseInt(priceElB.dataset.originalPrice, 10) || 0) : 0;
-                    
-                    const promoA = parseInt(statusSettings[nameA]?.promoPrice, 10) || 0;
-                    const promoB = parseInt(statusSettings[nameB]?.promoPrice, 10) || 0;
-                    
-                    const isDelistedA = statusSettings[nameA] && statusSettings[nameA].status === 'delisted';
-                    const isDelistedB = statusSettings[nameB] && statusSettings[nameB].status === 'delisted';
-                    const stockA = inventory[nameA] !== undefined ? inventory[nameA] : 100;
-                    const stockB = inventory[nameB] !== undefined ? inventory[nameB] : 100;
-                    const isSoldOutA = stockA <= 0;
-                    const isSoldOutB = stockB <= 0;
-                    
-                    // 只有未下架且未售罄的促銷特價才是「有效特價」
-                    const isSaleActiveA = (promoA && promoA < origA && !isDelistedA && !isSoldOutA) ? 1 : 0;
-                    const isSaleActiveB = (promoB && promoB < origB && !isDelistedB && !isSoldOutB) ? 1 : 0;
-                    
-                    if (isSaleActiveA !== isSaleActiveB) {
-                        return isSaleActiveB - isSaleActiveA; // 特價商品排前面
-                    }
-                    
-                    // 如果兩者特價狀態相同，則再判斷是否可售 (未下架且未售罄的排在前面)
-                    const isAvailableA = (!isDelistedA && !isSoldOutA) ? 1 : 0;
-                    const isAvailableB = (!isDelistedB && !isSoldOutB) ? 1 : 0;
-                    if (isAvailableA !== isAvailableB) {
-                        return isAvailableB - isAvailableA;
-                    }
-                    
-                    // 最後保持原有順序
-                    return parseInt(a.dataset.originalIndex, 10) - parseInt(b.dataset.originalIndex, 10);
-                });
-                
-                // 重新放入 DOM
-                items.forEach(item => grid.appendChild(item));
-            });
+        // --- Scene 2 : Hold interaction ---
+        function startPress(e) {
+            if (isTransitioning) return;
+            if (e.type === 'touchstart') e.preventDefault();
+            pressTween = gsap.to(circle, { strokeDashoffset: 0, duration: 1.5, ease: "power1.inOut", onComplete: triggerNextScene });
+            rippleTween = gsap.to(ripples, { scale: 18, opacity: (i) => 0.5 - (i * 0.08), duration: 2, stagger: 0.12, ease: "power2.inOut" });
         }
-        
-        // Execute on load
-        updateCartBadge();
-        updateProductStatus();
 
-        const searchInput = document.getElementById('searchInput');
-        if(searchInput) {
-            searchInput.addEventListener('input', function() {
-                const keyword = this.value.trim().toLowerCase();
-                const menuItems = document.querySelectorAll('.menu-item');
-                const noResultMsg = document.getElementById('no-result-msg');
-                let hasResult = false;
-                
-                if (keyword.length > 0) {
-                    const firstMenuSection = document.querySelector('.menu-section');
-                    const offsetPosition = firstMenuSection.getBoundingClientRect().top + window.pageYOffset - 80;
-                    if(Math.abs(window.pageYOffset - offsetPosition) > 200) { window.scrollTo({ top: offsetPosition, behavior: "smooth" }); }
+        function cancelPress() {
+            if (isTransitioning) return;
+            if (pressTween) pressTween.kill();
+            if (rippleTween) rippleTween.kill();
+            gsap.to(circle, { strokeDashoffset: circumference, duration: 0.3 });
+            gsap.to(ripples, { scale: 1, opacity: 0, duration: 0.3 });
+        }
+
+        // --- Scene 3 : Name / Date / Strikethrough / Carousel ---
+        function triggerNextScene() {
+            isTransitioning = true;
+            gsap.to([startWrapper, holdLabel], {
+                opacity: 0, duration: 0.5, onComplete: () => {
+                    startWrapper.style.display = 'none';
+                    holdLabel.style.display = 'none';
                 }
-
-                menuItems.forEach(item => {
-                    if (item.querySelector('.menu-item-name').innerText.toLowerCase().includes(keyword)) {
-                        item.style.display = 'flex'; hasResult = true;
-                    } else { item.style.display = 'none'; }
-                });
-
-                noResultMsg.style.display = (keyword.length > 0 && !hasResult) ? 'block' : 'none';
             });
+
+            // 1. Reveal name & date
+            gsap.to([textName, textDate], { opacity: 1, y: -20, duration: 2, stagger: 0.5, ease: "power2.out" });
+
+            // 2. Play heartbeat sound
+            heartSound = new Audio('https://actions.google.com/sounds/v1/foley/heartbeat.ogg');
+            heartSound.loop = true;
+            heartSound.volume = 0.5;
+            heartSound.play().catch(() => { });
+
+            // 3. Animation timeline
+            let tl = gsap.timeline({ delay: 3.5 });
+
+            tl.to(scribblePath, {
+                strokeDashoffset: 0, duration: 0.4, ease: "power4.inOut"
+            })
+                .to([textName, textDate], {
+                    opacity: 0, y: -30, duration: 1, ease: "power2.in"
+                }, "+=1.0") // pause 1s after strikethrough then fade
+                .to(photoContainer, {
+                    opacity: 1, duration: 1.5,
+                    onStart: startPhotoCarousel // start carousel when photo container appears
+                });
         }
 
-        const navbarToggle = document.getElementById('navbarToggle');
-        const navbarMenu = document.getElementById('navbarMenu');
-        navbarToggle.addEventListener('click', () => { navbarMenu.classList.toggle('active'); });
+        function startPhotoCarousel() {
+            let currentIdx = 0;
+            if (images.length > 0) gsap.set(images[0], { opacity: 1 });
 
-        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, observerOptions);
-        document.querySelectorAll('.menu-item').forEach((card, index) => setTimeout(() => observer.observe(card), index * 50));
-        
-        document.documentElement.style.scrollBehavior = 'smooth';
+            // Carousel: switch every 0.5s
+            setInterval(() => {
+                if (images.length === 0) return;
+                gsap.to(images[currentIdx], { opacity: 0, duration: 0.3 });
+                currentIdx = (currentIdx + 1) % images.length;
+                gsap.to(images[currentIdx], { opacity: 1, duration: 0.3 });
+            }, 500);
+
+            // Show enter button
+            setTimeout(() => {
+                enterBtn.style.display = 'block';
+                gsap.to(enterBtn, { opacity: 1, duration: 1 });
+            }, 2000);
+        }
+
+        // ── Full-page WebGL cloud transition ──
+        function initCloudTransition() {
+            const canvas = document.getElementById('cloud-gl');
+            const gl = canvas.getContext('webgl');
+
+            const VS = `attribute vec2 a_pos; void main(){ gl_Position = vec4(a_pos,0,1); }`;
+            const FS = `
+                precision highp float;
+                uniform vec2  u_res;
+                uniform float u_time;
+                float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+                float noise(vec2 p){
+                    vec2 i=floor(p),f=fract(p),u=f*f*(3.0-2.0*f);
+                    return mix(mix(hash(i),hash(i+vec2(1,0)),u.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),u.x),u.y);
+                }
+                float fbm(vec2 p){
+                    float v=0.0,a=0.5;
+                    for(int i=0;i<6;i++){ v+=a*noise(p); p=p*2.1+vec2(1.7,9.2); a*=0.5; }
+                    return v;
+                }
+                void main(){
+                    vec2 uv=gl_FragCoord.xy/u_res; uv.y=1.0-uv.y;
+                    float t=u_time*0.16;
+                    vec2 q=vec2(fbm(uv+t),fbm(uv+vec2(1.0)));
+                    vec2 r=vec2(fbm(uv+2.0*q+vec2(1.7,9.2)+0.15*t),fbm(uv+2.0*q+vec2(8.3,2.8)+0.126*t));
+                    float f=smoothstep(0.0,1.0,fbm(uv+2.8*r));
+                    vec3 col=mix(vec3(0.984,0.984,0.984),vec3(1.0,0.72,0.72),f);
+                    col=mix(col,vec3(0.87,0.0,0.05),pow(f,2.8)*1.3);
+                    col=mix(col,vec3(0.6,0.0,0.04),pow(f,6.0)*0.6);
+                    gl_FragColor=vec4(col,1.0);
+                }
+            `;
+
+            function mkS(src, type) {
+                const s = gl.createShader(type);
+                gl.shaderSource(s, src); gl.compileShader(s); return s;
+            }
+            const prog = gl.createProgram();
+            gl.attachShader(prog, mkS(VS, gl.VERTEX_SHADER));
+            gl.attachShader(prog, mkS(FS, gl.FRAGMENT_SHADER));
+            gl.linkProgram(prog); gl.useProgram(prog);
+
+            const buf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+            const aPos = gl.getAttribLocation(prog, 'a_pos');
+            const uRes = gl.getUniformLocation(prog, 'u_res');
+            const uTime = gl.getUniformLocation(prog, 'u_time');
+            gl.enableVertexAttribArray(aPos);
+            gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const start = performance.now();
+            (function render() {
+                const t = (performance.now() - start) / 1000;
+                gl.uniform2f(uRes, canvas.width, canvas.height);
+                gl.uniform1f(uTime, t);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                requestAnimationFrame(render);
+            })();
+        }
+        initCloudTransition();
+
+        enterBtn.addEventListener('click', () => {
+            // Cloud fade in
+            transitionOverlay.style.opacity = '1';
+            if (heartSound) {
+                gsap.to(heartSound, { volume: 0, duration: 1.2, onComplete: () => heartSound.pause() });
+            }
+            // Run cloud shader then navigate
+            setTimeout(() => {
+                window.location.href = 'radio-alice.html';
+            }, 1400);
+        });
+
+        startWrapper.addEventListener('mousedown', startPress);
+        startWrapper.addEventListener('touchstart', startPress, { passive: false });
+        startWrapper.addEventListener('mouseup', cancelPress);
+        startWrapper.addEventListener('mouseleave', cancelPress);
+        startWrapper.addEventListener('touchend', cancelPress);
+        } // end startMainScene
     </script>
 </body>
+
 </html>

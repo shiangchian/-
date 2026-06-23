@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memories — Digital Autobiography</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #f5f0eb;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    cursor: none;
+  }
+
+  /* ── INTRO OVERLAY (fades in from white) ── */
+  #intro-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #fbfbfb;
+    opacity: 1;
+    pointer-events: none;
+    transition: opacity 1.2s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── THREE.JS CANVAS ── */
+  #three-canvas {
+    position: fixed;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── UI LAYER ── */
+  .ui {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    color: #1a1a1a;
+  }
+
+  /* top-left back button */
+  .back-btn {
+    position: absolute;
+    top: 28px;
+    left: 28px;
+    font-size: 11px;
+    letter-spacing: .14em;
+    cursor: pointer;
+    pointer-events: all;
+    opacity: 0;
+    transition: opacity .4s, transform .3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .back-btn:hover { transform: translateX(-4px); }
+  .back-arrow { display: inline-block; transition: transform .3s; }
+
+  /* title */
+  .mem-title {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    opacity: 0;
+    white-space: nowrap;
+  }
+
+  /* caption at bottom */
+  .caption {
+    position: absolute;
+    bottom: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity .5s;
+  }
+  .caption-name {
+    font-size: clamp(11px, 1.4vw, 15px);
+    letter-spacing: .2em;
+    font-family: 'Courier New', monospace;
+    color: #cc4444;
+  }
+  .caption-hint {
+    font-size: 10px;
+    letter-spacing: .16em;
+    color: #555;
+    margin-top: 6px;
+  }
+
+  /* counter top-right */
+  .counter {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    font-size: 11px;
+    letter-spacing: .1em;
+    font-family: 'Courier New', monospace;
+    color: #aaa;
+    opacity: 0;
+  }
+
+  /* custom cursor */
+  #cursor {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: #cc4444;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform .08s, width .2s, height .2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(204,68,68,.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform .18s, width .2s, height .2s, opacity .2s;
+  }
+
+  /* drag hint bar */
+  .drag-hint {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 1px;
+    background: #333;
+    overflow: hidden;
+    opacity: 0;
+  }
+  .drag-hint::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: #cc4444;
+    animation: dragBar 2s ease-in-out infinite;
+  }
+  @keyframes dragBar {
+    0%   { left: -100%; }
+    50%  { left: 0%; }
+    100% { left: 100%; }
+  }
+
+  /* selected photo info panel */
+  #photo-info {
+    position: absolute;
+    bottom: 42px;
+    right: 28px;
+    text-align: right;
+    opacity: 0;
+    transition: opacity .5s;
+    pointer-events: none;
+  }
+  #photo-info .pi-label {
+    font-size: 10px;
+    letter-spacing: .18em;
+    color: #555;
+    font-family: 'Courier New', monospace;
+  }
+  #photo-info .pi-num {
+    font-size: 32px;
+    font-weight: 200;
+    color: #1a1a1a;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  /* page-out overlay */
+  #page-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: #f5f0eb;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .7s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ══ DETAIL PANEL ══ */
+  #detail-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: stretch;
+    pointer-events: none;
+    opacity: 0;
+  }
+  #detail-panel.open {
+    pointer-events: all;
+  }
+
+  /* dark scrim behind everything */
+  #detail-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(245,240,235,0.96);
+    opacity: 0;
+    transition: opacity .6s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+
+  /* photo side — left 55% */
+  #detail-photo-wrap {
+    position: relative;
+    width: 55%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transform: translateX(-60px);
+    opacity: 0;
+    transition: transform .7s cubic-bezier(.215,.61,.355,1), opacity .7s;
+  }
+  #detail-img {
+    max-width: 88%;
+    max-height: 82vh;
+    object-fit: contain;
+    display: block;
+    border-radius: 3px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.7);
+  }
+  /* canvas-based photo when no real img */
+  #detail-canvas-img {
+    max-width: 88%;
+    max-height: 82vh;
+    display: block;
+    border-radius: 3px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.7);
+  }
+
+  /* info side — right 45% */
+  #detail-info {
+    position: relative;
+    width: 45%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 56px 0 32px;
+    z-index: 2;
+    transform: translateX(60px);
+    opacity: 0;
+    transition: transform .7s .1s cubic-bezier(.215,.61,.355,1), opacity .7s .1s;
+  }
+
+  .di-num {
+    font-size: clamp(60px, 8vw, 100px);
+    font-weight: 200;
+    color: rgba(204,68,68,.12);
+    line-height: 1;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    letter-spacing: -.02em;
+    margin-bottom: -12px;
+    user-select: none;
+  }
+  .di-eyebrow {
+    font-size: 10px;
+    letter-spacing: .22em;
+    color: #cc4444;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .di-title {
+    font-size: clamp(22px, 3vw, 36px);
+    font-weight: 300;
+    color: #1a1a1a;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    margin-bottom: 20px;
+  }
+  .di-divider {
+    width: 32px;
+    height: 1px;
+    background: #cc4444;
+    margin-bottom: 20px;
+  }
+  .di-body {
+    font-size: clamp(12px, 1.2vw, 14px);
+    line-height: 1.85;
+    color: #555;
+    letter-spacing: .02em;
+    max-width: 380px;
+  }
+  .di-body em {
+    color: #999;
+    font-style: normal;
+  }
+  .di-meta {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .di-meta-row {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+  .di-meta-label {
+    font-size: 9px;
+    letter-spacing: .2em;
+    color: #aaa;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    min-width: 52px;
+  }
+  .di-meta-val {
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: #666;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* close button */
+  #detail-close {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity .4s .3s, transform .3s;
+    color: #555;
+    font-size: 20px;
+    font-weight: 200;
+  }
+  #detail-close:hover { color: #1a1a1a; transform: rotate(90deg); }
+
+  /* nav arrows inside panel */
+  .detail-nav {
+    position: absolute;
+    bottom: 36px;
+    display: flex;
+    gap: 20px;
+    right: 56px;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity .4s .4s;
+  }
+  .detail-nav-btn {
+    font-size: 11px;
+    letter-spacing: .14em;
+    color: #aaa;
+    cursor: pointer;
+    transition: color .2s;
+    font-family: 'Courier New', monospace;
+    pointer-events: all;
+  }
+  .detail-nav-btn:hover { color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<!-- fade-in overlay -->
+<div id="intro-overlay"></div>
+
+<!-- Three.js renders here -->
+<canvas id="three-canvas"></canvas>
+
+<!-- UI -->
+<div class="ui" id="ui">
+  <div class="back-btn" id="backBtn">
+    <span class="back-arrow">←</span> RadioAlice
+  </div>
+  <div class="mem-title" id="memTitle">These Are Alice's Last Words</div>
+  <div class="caption" id="caption">
+    <div class="caption-name">SHIUE SHIANG CHIAN</div>
+    <div class="caption-hint">drag to explore &nbsp;·&nbsp; scroll to zoom</div>
+  </div>
+  <div class="counter" id="counter">01 / 08</div>
+  <div class="drag-hint" id="dragHint"></div>
+  <div id="photo-info">
+    <div class="pi-label">memory</div>
+    <div class="pi-num" id="piNum">01</div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div id="detail-panel">
+  <div id="detail-scrim"></div>
+
+  <div id="detail-photo-wrap">
+    <img id="detail-img" src="" alt="" style="display:none">
+    <canvas id="detail-canvas-img"></canvas>
+  </div>
+
+  <div id="detail-info">
+    <div class="di-num" id="di-num">01</div>
+    <div class="di-eyebrow" id="di-eyebrow">memory · 2006</div>
+    <div class="di-title" id="di-title">Title of This Memory</div>
+    <div class="di-divider"></div>
+    <div class="di-body" id="di-body">
+      Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping. <em>Replace this text with your own words.</em>
+    </div>
+    <div class="di-meta" id="di-meta">
+      <div class="di-meta-row">
+        <span class="di-meta-label">date</span>
+        <span class="di-meta-val" id="di-date">YYYY · MM · DD</span>
+      </div>
+      <div class="di-meta-row">
+        <span class="di-meta-label">place</span>
+        <span class="di-meta-val" id="di-place">Location, City</span>
+      </div>
+      <div class="di-meta-row">
+        <span class="di-meta-label">with</span>
+        <span class="di-meta-val" id="di-with">Name, Name</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="detail-close">✕</div>
+  <div class="detail-nav">
+    <span class="detail-nav-btn" id="detailPrev">← prev</span>
+    <span class="detail-nav-btn" id="detailNext">next →</span>
+  </div>
+</div>
+
+<!-- cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- page-out overlay -->
+<div id="page-overlay"></div>
+
+<!-- Three.js r128 (same version used in allowed CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════
+   PHOTO DATA — replace src with real image paths
+══════════════════════════════════════════════ */
+const PHOTOS = [
+  'image/IMG_1514.JPG','image/IMG_2334.JPG','image/IMG_4131.JPG','image/IMG_4221.JPG',
+  'image/IMG_4732.JPG','image/IMG_4832.JPG','image/IMG_5013.JPG','image/IMG_5120.JPG',
+  'image/IMG_1514.JPG','image/IMG_2334.JPG','image/IMG_4131.JPG','image/IMG_4221.JPG',
+  'image/IMG_4732.JPG','image/IMG_4832.JPG','image/IMG_5013.JPG','image/IMG_5120.JPG'
+];
+
+/* ══════════════════════════════════════════════
+   PHOTO METADATA — fill in your content here
+══════════════════════════════════════════════ */
+const PHOTO_DATA = [
+  {
+    eyebrow:  'memory · 01',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 02',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 03',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 04',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 05',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 06',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 07',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 08',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 09',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 10',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 11',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 12',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 13',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 14',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 15',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+  {
+    eyebrow:  'memory · 16',
+    title:    'Title of This Memory',
+    body:     'Your description goes here. Write about the moment, the feeling, the people — whatever made this memory worth keeping.',
+    date:     'YYYY · MM · DD',
+    place:    'Location, City',
+    with:     'Name, Name',
+  },
+];
+
+/* ══════════════════════════════════════════════
+   SCENE SETUP
+══════════════════════════════════════════════ */
+const canvas   = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xf5f0eb, 1);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 0, 24);
+camera.lookAt(0, 0, 0);
+
+/* fog for depth — lighter so far cards still visible */
+scene.fog = new THREE.FogExp2(0xf5f0eb, 0.028);
+
+/* ambient + point lights */
+const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambient);
+const pointL = new THREE.PointLight(0xffffff, 1.4, 80);
+pointL.position.set(0, 10, 12);
+scene.add(pointL);
+
+/* ══════════════════════════════════════════════
+   PHOTO RING
+══════════════════════════════════════════════ */
+const RADIUS     = 14;
+const N          = PHOTOS.length;
+const CARD_W     = 4.2;
+const CARD_H     = 5.6;
+const group      = new THREE.Group();
+scene.add(group);
+
+const loader    = new THREE.TextureLoader();
+const meshes    = [];
+const materials = [];
+
+// placeholder gradient texture while real images load
+function makePlaceholder(idx) {
+  const size = 512;
+  const cvs  = document.createElement('canvas');
+  cvs.width  = size;
+  cvs.height = Math.floor(size * (CARD_H / CARD_W));
+  const W = cvs.width, H = cvs.height;
+  const c = cvs.getContext('2d');
+
+  // dark base gradient — neutral warm-dark, no hue
+  const grd = c.createRadialGradient(W*.5, H*.38, 0, W*.5, H*.5, W*.75);
+  grd.addColorStop(0, '#d8d0c8');
+  grd.addColorStop(1, '#b8b0a8');
+  c.fillStyle = grd;
+  c.fillRect(0, 0, W, H);
+
+  // film grain
+  for (let i = 0; i < W * H * 0.18; i++) {
+    const gx = Math.random() * W;
+    const gy = Math.random() * H;
+    const a  = Math.random() * 0.055;
+    c.fillStyle = `rgba(255,255,255,${a})`;
+    c.fillRect(gx, gy, 1, 1);
+  }
+
+  // subtle vignette
+  const vig = c.createRadialGradient(W/2, H/2, H*.2, W/2, H/2, H*.8);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  c.fillStyle = vig;
+  c.fillRect(0, 0, W, H);
+
+  // thin center cross-hair (very dim)
+  c.strokeStyle = 'rgba(255,255,255,0.06)';
+  c.lineWidth = 1;
+  c.beginPath(); c.moveTo(W/2, H/2 - 12); c.lineTo(W/2, H/2 + 12); c.stroke();
+  c.beginPath(); c.moveTo(W/2 - 12, H/2); c.lineTo(W/2 + 12, H/2); c.stroke();
+
+  return new THREE.CanvasTexture(cvs);
+}
+
+PHOTOS.forEach((src, i) => {
+  const angle = (i / N) * Math.PI * 2;
+  const x = RADIUS * Math.cos(angle);
+  const z = RADIUS * Math.sin(angle);
+
+  // card geometry with slight bevel feeling via geometry
+  const geo = new THREE.PlaneGeometry(CARD_W, CARD_H, 1, 1);
+
+  const tex = makePlaceholder(i);
+  const mat = new THREE.MeshStandardMaterial({
+    map: tex,
+    roughness: .85,
+    metalness: .05,
+    transparent: true,
+    opacity: 0,
+  });
+  materials.push(mat);
+
+  // attempt to load real image
+  loader.load(src, (loadedTex) => {
+    loadedTex.encoding = THREE.sRGBEncoding;
+    mat.map = loadedTex;
+    mat.needsUpdate = true;
+  }, undefined, () => { /* silently keep placeholder */ });
+
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, 0, z);
+  mesh.rotation.y = -angle + Math.PI / 2;
+  mesh.userData = { index: i, baseY: 0, angle };
+
+  // thin border plane (slightly behind)
+  const borderGeo = new THREE.PlaneGeometry(CARD_W + 0.06, CARD_H + 0.06);
+  const borderMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0 });
+  const border    = new THREE.Mesh(borderGeo, borderMat);
+  border.position.z = -0.002;
+  mesh.add(border);
+  mesh.userData.borderMat = borderMat;
+
+  group.add(mesh);
+  meshes.push(mesh);
+});
+
+/* ══════════════════════════════════════════════
+   PARTICLE FIELD (floating dust)
+══════════════════════════════════════════════ */
+const PART_COUNT = 320;
+const partGeo    = new THREE.BufferGeometry();
+const partPos    = new Float32Array(PART_COUNT * 3);
+for (let i = 0; i < PART_COUNT * 3; i++) partPos[i] = (Math.random() - .5) * 30;
+partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+const partMat  = new THREE.PointsMaterial({ color: 0xc4bab0, size: .04, transparent: true, opacity: .6 });
+const particles = new THREE.Points(partGeo, partMat);
+scene.add(particles);
+
+/* ══════════════════════════════════════════════
+   INTRO ANIMATION (camera push + card reveal)
+══════════════════════════════════════════════ */
+let sceneReady = false;
+
+// Step 1: fade overlay away
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('intro-overlay').style.opacity = '0';
+
+    // camera start far back on z axis
+    camera.position.set(0, 0, 50);
+    camera.lookAt(0, 0, 0);
+
+    // reveal cards staggered
+    meshes.forEach((mesh, i) => {
+      gsap.to(mesh.material, { opacity: 1, duration: 1.2, delay: .3 + i * .08, ease: 'power2.out' });
+      gsap.to(mesh.userData.borderMat, { opacity: 1, duration: 1.2, delay: .3 + i * .08, ease: 'power2.out' });
+      gsap.to(mesh.position, { y: 0, duration: 1.4, delay: .2 + i * .08, ease: 'power3.out', from: -3 });
+    });
+
+    // camera push in
+    gsap.to(camera.position, {
+      z: 24, duration: 3.2, delay: .4, ease: 'power2.inOut',
+      onComplete: () => {
+        sceneReady = true;
+        // show UI
+        gsap.to(['#backBtn','#memTitle','#counter','#caption','#dragHint','#photo-info'], {
+          opacity: 1, duration: 1, stagger: .12, ease: 'power2.out'
+        });
+        document.getElementById('dragHint').style.opacity = '1';
+      }
+    });
+  }, 200);
+});
+
+/* ══════════════════════════════════════════════
+   INTERACTION — 3D orbit drag + scroll zoom
+══════════════════════════════════════════════ */
+let isDragging  = false;
+let lastX       = 0;
+let lastY       = 0;
+
+// azimuth (horizontal) — controls group Y rotation
+let rotVelocityX = 0;
+let currentRotY  = 0;
+
+// polar (vertical) — controls camera elevation angle
+let rotVelocityY = 0;
+let polarAngle   = 0;          // radians, clamped ±0.55
+const POLAR_MAX  = 0.55;
+
+// camera zoom
+let targetFOV = 72;
+let cameraZ   = 24; // orbit radius
+
+canvas.addEventListener('mousedown', e => {
+  isDragging = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+
+window.addEventListener('mousemove', e => {
+  // cursor
+  document.getElementById('cursor').style.left      = e.clientX + 'px';
+  document.getElementById('cursor').style.top       = e.clientY + 'px';
+  document.getElementById('cursor-ring').style.left = e.clientX + 'px';
+  document.getElementById('cursor-ring').style.top  = e.clientY + 'px';
+
+  if (!isDragging || !sceneReady) return;
+  const dx = e.clientX - lastX;
+  const dy = e.clientY - lastY;
+  rotVelocityX += dx * 0.003;
+  rotVelocityY += dy * 0.004;  // up/down tilts camera angle
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+
+window.addEventListener('wheel', e => {
+  if (!sceneReady) return;
+  cameraZ = Math.min(38, Math.max(12, cameraZ + e.deltaY * 0.03));
+}, { passive: true });
+
+// touch
+let lastTX = 0, lastTY = 0;
+canvas.addEventListener('touchstart', e => {
+  isDragging = true;
+  lastTX = e.touches[0].clientX;
+  lastTY = e.touches[0].clientY;
+});
+window.addEventListener('touchend', () => { isDragging = false; });
+window.addEventListener('touchmove', e => {
+  if (!isDragging || !sceneReady) return;
+  const dx = e.touches[0].clientX - lastTX;
+  const dy = e.touches[0].clientY - lastTY;
+  rotVelocityX += dx * 0.004;
+  rotVelocityY += dy * 0.005;
+  lastTX = e.touches[0].clientX;
+  lastTY = e.touches[0].clientY;
+}, { passive: true });
+
+/* ══════════════════════════════════════════════
+   RAYCASTER — hover highlight
+══════════════════════════════════════════════ */
+const raycaster = new THREE.Raycaster();
+const mouse2    = new THREE.Vector2();
+let   hoveredMesh = null;
+let   currentIdx  = 0;
+
+window.addEventListener('mousemove', e => {
+  mouse2.x = (e.clientX / window.innerWidth)  *  2 - 1;
+  mouse2.y = (e.clientY / window.innerHeight) * -2 + 1;
+});
+
+/* ══════════════════════════════════════════════
+   DETAIL PANEL — open / close / navigate
+══════════════════════════════════════════════ */
+let detailOpen  = false;
+let detailIndex = 0;
+
+// track mousedown position to distinguish click vs drag
+let mouseDownX = 0, mouseDownY = 0;
+canvas.addEventListener('mousedown', e => { mouseDownX = e.clientX; mouseDownY = e.clientY; });
+
+canvas.addEventListener('click', e => {
+  if (!sceneReady || detailOpen) return;
+  // ignore if it was a drag (moved > 5px)
+  if (Math.abs(e.clientX - mouseDownX) > 5 || Math.abs(e.clientY - mouseDownY) > 5) return;
+
+  raycaster.setFromCamera(mouse2, camera);
+  const hits = raycaster.intersectObjects(meshes);
+  if (hits.length > 0) {
+    openDetail(hits[0].object.userData.index);
+  }
+});
+
+// touch tap
+let touchStartX = 0, touchStartY = 0;
+canvas.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+canvas.addEventListener('touchend', e => {
+  if (!sceneReady || detailOpen) return;
+  const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
+  const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+  if (dx < 6 && dy < 6) {
+    // update mouse2 for raycaster
+    mouse2.x = (touchStartX / window.innerWidth)  *  2 - 1;
+    mouse2.y = (touchStartY / window.innerHeight) * -2 + 1;
+    raycaster.setFromCamera(mouse2, camera);
+    const hits = raycaster.intersectObjects(meshes);
+    if (hits.length > 0) openDetail(hits[0].object.userData.index);
+  }
+});
+
+function openDetail(idx) {
+  detailOpen  = true;
+  detailIndex = idx;
+  rotVelocityX = 0;
+  rotVelocityY = 0;
+
+  const panel  = document.getElementById('detail-panel');
+  const scrim  = document.getElementById('detail-scrim');
+  const pw     = document.getElementById('detail-photo-wrap');
+  const info   = document.getElementById('detail-info');
+  const closeB = document.getElementById('detail-close');
+  const nav    = document.querySelector('.detail-nav');
+
+  // populate content
+  populateDetail(idx);
+
+  panel.style.opacity = '1';
+  panel.classList.add('open');
+
+  // staggered reveal
+  requestAnimationFrame(() => {
+    scrim.style.opacity  = '1';
+    setTimeout(() => {
+      pw.style.opacity   = '1';
+      pw.style.transform = 'translateX(0)';
+    }, 80);
+    setTimeout(() => {
+      info.style.opacity   = '1';
+      info.style.transform = 'translateX(0)';
+      closeB.style.opacity = '1';
+      nav.style.opacity    = '1';
+    }, 180);
+  });
+}
+
+function populateDetail(idx) {
+  const d  = PHOTO_DATA[idx];
+  const src = PHOTOS[idx];
+
+  document.getElementById('di-num').textContent    = String(idx + 1).padStart(2, '0');
+  document.getElementById('di-eyebrow').textContent = d.eyebrow;
+  document.getElementById('di-title').textContent  = d.title;
+  document.getElementById('di-body').innerHTML     = d.body;
+  document.getElementById('di-date').textContent   = d.date;
+  document.getElementById('di-place').textContent  = d.place;
+  document.getElementById('di-with').textContent   = d.with;
+
+  // show real image if available, else render placeholder from mesh texture
+  const img    = document.getElementById('detail-img');
+  const cvs    = document.getElementById('detail-canvas-img');
+
+  img.style.display = 'none';
+  cvs.style.display = 'none';
+
+  const testImg = new Image();
+  testImg.onload = () => {
+    img.src = src;
+    img.style.display = 'block';
+    cvs.style.display = 'none';
+  };
+  testImg.onerror = () => {
+    // draw placeholder on canvas
+    img.style.display = 'none';
+    cvs.style.display = 'block';
+    const pw = document.getElementById('detail-photo-wrap');
+    const maxH = window.innerHeight * 0.82;
+    const maxW = pw.clientWidth * 0.88;
+    const aspect = 3.2 / 4.2;
+    let cW = maxW, cH = maxW / aspect;
+    if (cH > maxH) { cH = maxH; cW = cH * aspect; }
+    cvs.width  = Math.floor(cW);
+    cvs.height = Math.floor(cH);
+    const c = cvs.getContext('2d');
+    const grd2 = c.createRadialGradient(cW*.5, cH*.38, 0, cW*.5, cH*.5, cW*.75);
+    grd2.addColorStop(0, '#d8d0c8');
+    grd2.addColorStop(1, '#080808');
+    c.fillStyle = grd2;
+    c.fillRect(0, 0, cW, cH);
+    // grain
+    for (let i = 0; i < cW * cH * 0.15; i++) {
+      c.fillStyle = `rgba(255,255,255,${Math.random() * 0.05})`;
+      c.fillRect(Math.random()*cW, Math.random()*cH, 1, 1);
+    }
+    // vignette
+    const vig2 = c.createRadialGradient(cW/2,cH/2,cH*.2,cW/2,cH/2,cH*.8);
+    vig2.addColorStop(0,'rgba(0,0,0,0)'); vig2.addColorStop(1,'rgba(0,0,0,0.55)');
+    c.fillStyle = vig2; c.fillRect(0,0,cW,cH);
+  };
+  testImg.src = src;
+}
+
+function closeDetail() {
+  const panel  = document.getElementById('detail-panel');
+  const scrim  = document.getElementById('detail-scrim');
+  const pw     = document.getElementById('detail-photo-wrap');
+  const info   = document.getElementById('detail-info');
+  const closeB = document.getElementById('detail-close');
+  const nav    = document.querySelector('.detail-nav');
+
+  pw.style.opacity     = '0';
+  pw.style.transform   = 'translateX(-60px)';
+  info.style.opacity   = '0';
+  info.style.transform = 'translateX(60px)';
+  closeB.style.opacity = '0';
+  nav.style.opacity    = '0';
+
+  setTimeout(() => {
+    scrim.style.opacity = '0';
+  }, 80);
+  setTimeout(() => {
+    panel.style.opacity = '0';
+    panel.classList.remove('open');
+    detailOpen = false;
+  }, 500);
+}
+
+document.getElementById('detail-close').addEventListener('click', closeDetail);
+document.getElementById('detail-scrim').addEventListener('click', closeDetail);
+
+document.getElementById('detailPrev').addEventListener('click', () => {
+  detailIndex = (detailIndex - 1 + N) % N;
+  populateDetail(detailIndex);
+});
+document.getElementById('detailNext').addEventListener('click', () => {
+  detailIndex = (detailIndex + 1) % N;
+  populateDetail(detailIndex);
+});
+
+// keyboard ESC / arrows
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && detailOpen) closeDetail();
+  if (!detailOpen) return;
+  if (e.key === 'ArrowRight') { detailIndex = (detailIndex + 1) % N; populateDetail(detailIndex); }
+  if (e.key === 'ArrowLeft')  { detailIndex = (detailIndex - 1 + N) % N; populateDetail(detailIndex); }
+});
+
+/* ══════════════════════════════════════════════
+   RENDER LOOP
+══════════════════════════════════════════════ */
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const et = clock.getElapsedTime();
+
+  // ── 3D ORBIT ──
+  // horizontal: rotate the ring group (azimuth)
+  if (!isDragging) rotVelocityX += 0.0003; // slow auto-spin
+  rotVelocityX *= 0.97;
+  currentRotY  += rotVelocityX;
+  group.rotation.y = currentRotY;
+
+  // vertical: orbit camera on sphere (polar angle)
+  rotVelocityY *= 0.92;
+  polarAngle   += rotVelocityY;
+  polarAngle    = Math.max(-POLAR_MAX, Math.min(POLAR_MAX, polarAngle));
+
+  // spherical coords: camera orbits on YZ plane
+  const R       = cameraZ;
+  const targetZ = R * Math.cos(polarAngle);
+  const targetY = R * Math.sin(polarAngle);
+  camera.position.z += (targetZ - camera.position.z) * .07;
+  camera.position.y += (targetY - camera.position.y) * .07;
+  camera.lookAt(0, 0, 0);
+
+  // particles drift
+  particles.rotation.y += 0.0003;
+  particles.rotation.x += 0.0001;
+
+  // raycaster hover
+  raycaster.setFromCamera(mouse2, camera);
+  const hits = raycaster.intersectObjects(meshes);
+
+  if (hits.length > 0) {
+    const hit = hits[0].object;
+    if (hit !== hoveredMesh) {
+      if (hoveredMesh) gsap.to(hoveredMesh.scale, { x: 1, y: 1, z: 1, duration: .4, ease: 'power2.out' });
+      hoveredMesh = hit;
+      gsap.to(hoveredMesh.scale, { x: 1.06, y: 1.06, z: 1.06, duration: .4, ease: 'back.out(2)' });
+      document.body.style.cursor = 'none';
+      document.getElementById('cursor').style.width  = '14px';
+      document.getElementById('cursor').style.height = '14px';
+    }
+    // update counter
+    const idx = hit.userData.index;
+    if (idx !== currentIdx) {
+      currentIdx = idx;
+      const num = String(idx + 1).padStart(2, '0');
+      document.getElementById('counter').textContent = `${num} / ${String(N).padStart(2,'0')}`;
+      document.getElementById('piNum').textContent   = num;
+    }
+  } else {
+    if (hoveredMesh) {
+      gsap.to(hoveredMesh.scale, { x: 1, y: 1, z: 1, duration: .4, ease: 'power2.out' });
+      hoveredMesh = null;
+    }
+    document.getElementById('cursor').style.width  = '8px';
+    document.getElementById('cursor').style.height = '8px';
+  }
+
+  // subtle card float
+  meshes.forEach((mesh, i) => {
+    mesh.position.y = Math.sin(et * .6 + i * .7) * .12;
+  });
+
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ══════════════════════════════════════════════
+   RESIZE
+══════════════════════════════════════════════ */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ══════════════════════════════════════════════
+   BACK BUTTON
+══════════════════════════════════════════════ */
+document.getElementById('backBtn').addEventListener('click', () => {
+  const ov = document.getElementById('page-overlay');
+  ov.style.pointerEvents = 'all';
+  ov.style.opacity       = '1';
+  setTimeout(() => { window.location.href = 'radio-alice.html'; }, 750);
+});
+</script>
+</body>
+</html>
